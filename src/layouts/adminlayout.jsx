@@ -1,0 +1,21 @@
+import Sidebar from "../components/Sidebar";
+import Header from "../components/Header";
+import { Outlet } from "react-router-dom";
+
+function AdminLayout() {
+  return (
+    <div className="flex min-h-screen bg-slate-100 dark:bg-slate-950">
+      <Sidebar />
+
+      <div className="flex-1 ml-[280px]">
+        <Header />
+
+        <main className="p-8">
+          <Outlet />
+        </main>
+      </div>
+    </div>
+  );
+}
+
+export default AdminLayout;
