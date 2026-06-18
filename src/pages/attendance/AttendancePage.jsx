@@ -8,7 +8,7 @@ import {
   isWithinRadius,
   PUSKESMAS_LOCATION,
   RADIUS_METER,
-} from "../../services/attendanceservice";
+} from "../../services/attendanceService";
 import { toast } from "react-toastify";
 import {
   MapPin, Camera, Clock, CheckCircle2, XCircle,

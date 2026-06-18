@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { signIn } from "../../services/authservice";
+import { signIn } from "../../services/authService";
 import { useAuth } from "../../context/AuthContext";
 import { supabase } from "../../lib/supabase";
 import {
@@ -10,7 +10,7 @@ import {
   sendOtpEmail,
   verifyOtp,
   createDeviceRequest,
-} from "../../services/deviceservice";
+} from "../../services/deviceService";
 import {
   Activity, LogIn, AlertCircle, Smartphone, Mail, Clock,
   CheckCircle2, XCircle, RefreshCw,
