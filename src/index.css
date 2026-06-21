@@ -1,3 +1,19 @@
+@import "tailwindcss";
+
+/* ✅ Tailwind v4: aktifkan dark mode via class .dark di <html> */
+@variant dark (&:where(.dark, .dark *));
+
+html,
+body,
+#root {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+}
+
+body {
+  background: #020617;
+}
 /* Animations for Login Background */
 @keyframes gradient {
   0% { background-position: 0% 50%; }
