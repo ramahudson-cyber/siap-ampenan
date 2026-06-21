@@ -235,12 +235,9 @@
 
       const landmarks = results.multiFaceLandmarks[0];
       
-      // === VALIDASI POSISI WAJAH FULL FRAME ===
-      // Ambil bounding box wajah dari landmark pertama (0) dan terakhir (467)
-      // MediaPipe mengembalikan koordinat normalisasi (0.0 - 1.0)
+      // === VALIDASI UKURAN & POSISI WAJAH ===
       let minX = 1, maxX = 0, minY = 1, maxY = 0;
-      // Kita cek landmark kontur wajah (beberapa titik tepi)
-      const faceOval = [10, 152, 234, 454, 127, 356]; // Dahi, dagu, pipi kiri, pipi kanan
+      const faceOval = [10, 152, 234, 454, 127, 356]; 
       for (let i of faceOval) {
         const pt = landmarks[i];
         if (pt.x < minX) minX = pt.x;
@@ -249,21 +246,27 @@
         if (pt.y > maxY) maxY = pt.y;
       }
       
-      // Cek apakah wajah terpotong (terlalu mepet tepi)
-      const margin = 0.05; // 5% margin dari tepi layar
-      const isCropped = minX < margin || maxX > (1 - margin) || minY < margin || maxY > (1 - margin);
-      
-      // Cek apakah wajah cukup besar (minimal 40% lebar layar)
       const faceWidth = maxX - minX;
-      const isTooSmall = faceWidth < 0.40;
+      const faceHeight = maxY - minY;
+      const centerX = (minX + maxX) / 2;
       
-      if (isCropped || isTooSmall) {
+      // 1. Cek jika wajah terlalu besar (terlalu dekat, hanya mata/hidung yang kelihatan)
+      const isTooClose = faceWidth > 0.60 || faceHeight > 0.70;
+      
+      // 2. Cek jika wajah terlalu kecil (terlalu jauh)
+      const isTooSmall = faceWidth < 0.35;
+      
+      // 3. Cek jika wajah tidak di tengah
+      const isOffCenter = Math.abs(centerX - 0.5) > 0.15;
+      
+      if (isTooClose || isTooSmall || isOffCenter) {
         captureBtn.disabled = true;
         if (calibrationDone) {
-          if (isTooSmall) showStatus('Mendekatlah ke kamera');
-          else showStatus('Wajah terpotong, mundur sedikit');
+          if (isTooClose) showStatus('Wajah terlalu dekat, mundur sedikit');
+          else if (isTooSmall) showStatus('Wajah terlalu kecil, mendekatlah');
+          else showStatus('Posisikan wajah di tengah lingkaran');
         }
-        return; // Stop di sini, jangan proses blink
+        return; 
       }
       
       // Wajah valid
