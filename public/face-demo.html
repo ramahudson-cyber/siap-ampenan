@@ -386,6 +386,13 @@
     let consecutiveClosedFrames = 0;
     const CALIBRATION_FRAMES = 10;
     
+    // HYSTERESIS THRESHOLDS - professional signal processing
+    let earHistory = [];           // Moving average buffer
+    const EAR_SMOOTH_SIZE = 3;     // Smooth 3 frame
+    let dynamicBaseline = null;    // Continuously adapting baseline
+    const CLOSE_RATIO = 0.80;      // Mata dianggap tutup jika EAR < 80% baseline
+    const OPEN_RATIO = 0.92;       // Mata dianggap buka jika EAR > 92% baseline
+    
     function calculateEAR(eye) {
       const A = Math.sqrt(Math.pow(eye[1].x - eye[5].x, 2) + Math.pow(eye[1].y - eye[5].y, 2));
       const B = Math.sqrt(Math.pow(eye[2].x - eye[4].x, 2) + Math.pow(eye[2].y - eye[4].y, 2));
@@ -445,6 +452,10 @@
         earSamples = [];
         earBaseline = null;
         consecutiveClosedFrames = 0;
+        earHistory = [];
+        dynamicBaseline = null;
+        earHistory = [];
+        dynamicBaseline = null;
         
         showStatus('Posisikan wajah di lingkaran');
         detectionLoop();
@@ -462,7 +473,7 @@
         // GANTI 512 KE 416 UNTUK IPHONE 8 (LEBIH CEPAT)
         const detection = await faceapi
           .detectSingleFace(video, new faceapi.TinyFaceDetectorOptions({ 
-            inputSize: 416, 
+            inputSize: 608, 
             scoreThreshold: 0.4 
           }))
           .withFaceLandmarks();
@@ -497,6 +508,8 @@
           faceGuide.classList.remove('hidden');
           pulseRing.className = 'pulse-ring scanning';
           consecutiveClosedFrames = 0;
+        earHistory = [];
+        dynamicBaseline = null;
           
           if (calibrationDone) {
             if (!isBigEnough) showStatus('Mendekatlah sedikit ke kamera');
@@ -536,24 +549,42 @@
           }
         }
         
-        const EAR_THRESHOLD = earBaseline * 0.75;
+        // === PROFESSIONAL BLINK DETECTION ===
         const now = performance.now();
         
-        if (avgEAR < EAR_THRESHOLD) {
-          consecutiveClosedFrames++;
-          if (!isEyeClosed && consecutiveClosedFrames >= 1) {
+        // 1. SMOOTH EAR (moving average 3 frame - reduksi noise)
+        earHistory.push(avgEAR);
+        if (earHistory.length > EAR_SMOOTH_SIZE) earHistory.shift();
+        const smoothEAR = earHistory.reduce((a, b) => a + b, 0) / earHistory.length;
+        
+        // 2. CONTINUOUS BASELINE ADAPTATION
+        // Saat mata terbuka, baseline slowly adapts (handle lighting changes)
+        if (!isEyeClosed && calibrationDone) {
+          if (dynamicBaseline === null) dynamicBaseline = earBaseline;
+          // Weighted average: 95% old baseline + 5% new value (slow adaptation)
+          dynamicBaseline = (dynamicBaseline * 0.95) + (smoothEAR * 0.05);
+        }
+        
+        // 3. HYSTERESIS THRESHOLDS (eliminasi flickering)
+        const CLOSE_THRESHOLD = dynamicBaseline * CLOSE_RATIO;
+        const OPEN_THRESHOLD = dynamicBaseline * OPEN_RATIO;
+        
+        if (!isEyeClosed) {
+          // Cek mata TERTUTUP (harus turun di bawah CLOSE_THRESHOLD)
+          if (smoothEAR < CLOSE_THRESHOLD) {
             isEyeClosed = true;
             blinkStartTime = now;
             pulseRing.className = 'pulse-ring blink-detected';
           }
         } else {
-          if (isEyeClosed) {
+          // Cek mata TERBUKA kembali (harus naik di atas OPEN_THRESHOLD)
+          if (smoothEAR > OPEN_THRESHOLD) {
             const blinkDuration = now - blinkStartTime;
             isEyeClosed = false;
-            consecutiveClosedFrames = 0;
             pulseRing.className = 'pulse-ring scanning';
             
-            if (blinkDuration >= 20 && blinkDuration <= 3000 && (now - lastBlinkTime) > 150) {
+            // Valid blink: 30ms - 2000ms, anti-double 150ms
+            if (blinkDuration >= 30 && blinkDuration <= 2000 && (now - lastBlinkTime) > 150) {
               blinkCount++;
               lastBlinkTime = now;
               
@@ -563,7 +594,7 @@
           }
         }
         
-        if (isVerifying) detectionTimer = setTimeout(detectionLoop, 40);
+        if (isVerifying) detectionTimer = setTimeout(detectionLoop, 30);
       } catch (err) {
         if (isVerifying) detectionTimer = setTimeout(detectionLoop, 100);
       }
