@@ -12,8 +12,7 @@ import {
   createDeviceRequest,
 } from "../../services/deviceService";
 import {
-  Activity, LogIn, AlertCircle, Smartphone, Mail, Clock,
-  CheckCircle2, XCircle, RefreshCw, ShieldCheck
+  LogIn, AlertCircle, Mail, Clock, CheckCircle2, RefreshCw, ArrowLeft
 } from "lucide-react";
 
 export default function LoginPage() {
@@ -96,14 +95,14 @@ export default function LoginPage() {
           redirectByRole(profile.role);
           return;
         } else if (requestStatusInfo.status === "rejected") {
-          setError("🚫 Permintaan device Anda DITOLAK oleh admin.\n\nHubungi admin puskesmas.");
+          setError("Permintaan device DITOLAK. Hubungi admin.");
           await supabase.auth.signOut();
           setLoading(false);
           return;
         }
       }
 
-      const sendResult = await sendOtpEmail(profile.email || email, profile.full_name || username);
+      await sendOtpEmail(profile.email || email, profile.full_name || username);
       setStep("otp");
     } catch (err) {
       setError("Username/email atau password salah.");
@@ -127,14 +126,14 @@ export default function LoginPage() {
 
       const reqResult = await createDeviceRequest(deviceInfo);
       if (!reqResult.success) {
-        setError("Gagal membuat device request: " + reqResult.error);
+        setError("Gagal membuat device request.");
         setLoading(false);
         return;
       }
 
       setStep("pending");
     } catch (err) {
-      setError("Terjadi kesalahan: " + err.message);
+      setError("Terjadi kesalahan.");
     } finally {
       setLoading(false);
     }
@@ -157,14 +156,14 @@ export default function LoginPage() {
         }
         navigate("/admin", { replace: true });
       } else if (status.status === "rejected") {
-        setError("🚫 Permintaan device Anda DITOLAK oleh admin.\n\nHubungi admin.");
+        setError("Permintaan DITOLAK. Hubungi admin.");
         await supabase.auth.signOut();
         setStep("login");
       } else {
         setError("Masih menunggu approval admin.");
       }
     } catch (err) {
-      setError("Gagal cek status: " + err.message);
+      setError("Gagal cek status.");
     } finally {
       setLoading(false);
     }
@@ -176,7 +175,7 @@ export default function LoginPage() {
     try {
       await sendOtpEmail(userEmail, userName);
     } catch (err) {
-      setError("Gagal kirim ulang OTP: " + err.message);
+      setError("Gagal kirim ulang OTP.");
     } finally {
       setLoading(false);
     }
@@ -191,77 +190,64 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center p-4 overflow-hidden bg-slate-950">
-      {/* Animated Gradient Background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-violet-900 via-purple-900 to-slate-950 animate-gradient"></div>
+    <div className="min-h-screen flex items-center justify-center bg-slate-950 p-4 relative overflow-hidden">
+      {/* Gradient Background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-violet-900 via-purple-900 to-slate-950"></div>
       
-      {/* Decorative Blurs */}
-      <div className="absolute top-0 left-0 w-72 h-72 bg-purple-600 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
-      <div className="absolute top-0 right-0 w-72 h-72 bg-indigo-600 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
-      <div className="absolute bottom-0 left-0 w-72 h-72 bg-pink-600 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-4000"></div>
+      {/* Blur Orbs */}
+      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-600 rounded-full mix-blend-multiply filter blur-[128px] opacity-30"></div>
+      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-indigo-600 rounded-full mix-blend-multiply filter blur-[128px] opacity-30"></div>
 
-      <div className="relative z-10 w-full max-w-sm">
-        {/* Logo */}
+      {/* Content */}
+      <div className="relative z-10 w-full max-w-[380px]">
+        {/* Logo - Minimal */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 shadow-lg mb-4">
-            <Activity size={32} className="text-white" />
-          </div>
-          <h1 className="text-4xl font-extrabold text-white tracking-wider">SIAP</h1>
-          <p className="text-violet-200/70 text-xs mt-2 tracking-[0.3em] uppercase">Puskesmas Ampenan</p>
+          <h1 className="text-3xl font-bold text-white tracking-tight">SIAP</h1>
+          <p className="text-slate-400 text-xs mt-1">Puskesmas Ampenan</p>
         </div>
 
-        {/* Card Glassmorphism */}
-        <div className="bg-white/5 backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-white/10">
+        {/* Card - Glassmorphism Minimal */}
+        <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-8 border border-white/10 shadow-2xl">
           
           {/* STEP 1: LOGIN */}
           {step === "login" && (
             <>
-              <h2 className="text-2xl font-bold text-white mb-6 text-center">Masuk ke Sistem</h2>
+              <h2 className="text-xl font-semibold text-white mb-6">Masuk</h2>
               {error && (
-                <div className="mb-4 p-3 bg-red-500/10 border border-red-500/30 rounded-xl flex items-start gap-2">
-                  <AlertCircle size={18} className="text-red-400 shrink-0 mt-0.5" />
-                  <p className="text-sm text-red-300 whitespace-pre-line">{error}</p>
+                <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-lg flex items-center gap-2">
+                  <AlertCircle size={16} className="text-red-400 shrink-0" />
+                  <p className="text-xs text-red-300">{error}</p>
                 </div>
               )}
-              <form onSubmit={handleSubmit} className="space-y-5">
+              <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-2">Username atau Email</label>
                   <input
                     type="text"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
-                    placeholder="AMP002"
+                    placeholder="Username atau Email"
                     required
-                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-transparent transition"
+                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white text-sm placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-violet-500/50 focus:border-violet-500/50 transition"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-2">Password</label>
                   <input
                     type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="••••••••"
+                    placeholder="Password"
                     required
-                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-transparent transition"
+                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white text-sm placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-violet-500/50 focus:border-violet-500/50 transition"
                   />
                 </div>
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-violet-600 to-purple-700 text-white font-bold rounded-xl shadow-lg shadow-violet-600/30 hover:shadow-violet-600/50 hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full py-3 bg-white text-slate-900 font-semibold rounded-xl text-sm hover:bg-slate-100 transition disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {loading ? (
-                    <><div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div><span>Memverifikasi...</span></>
-                  ) : (
-                    <><LogIn size={18} /><span>Masuk</span></>
-                  )}
+                  {loading ? "Memproses..." : "Masuk"}
                 </button>
               </form>
-              <div className="mt-6 flex items-center gap-2 text-xs text-slate-400">
-                <ShieldCheck size={14} className="text-emerald-400" />
-                <span>Terlindungi oleh Verifikasi Wajah & Anti-Fake GPS</span>
-              </div>
             </>
           )}
 
@@ -269,48 +255,42 @@ export default function LoginPage() {
           {step === "otp" && (
             <>
               <div className="text-center mb-6">
-                <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 mb-3">
-                  <Mail size={28} className="text-white" />
+                <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-white/10 mb-3">
+                  <Mail size={24} className="text-white" />
                 </div>
-                <h2 className="text-2xl font-bold text-white mb-1">Verifikasi OTP</h2>
-                <p className="text-slate-400 text-xs">Kode OTP telah dikirim ke:</p>
-                <p className="text-white font-semibold text-sm mt-1 break-all">{userEmail}</p>
+                <h2 className="text-xl font-semibold text-white mb-1">Verifikasi OTP</h2>
+                <p className="text-slate-400 text-xs">Kode dikirim ke {userEmail}</p>
               </div>
               {error && (
-                <div className="mb-4 p-3 bg-red-500/10 border border-red-500/30 rounded-xl flex items-start gap-2">
-                  <AlertCircle size={18} className="text-red-400 shrink-0 mt-0.5" />
-                  <p className="text-sm text-red-300 whitespace-pre-line">{error}</p>
+                <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-lg flex items-center gap-2">
+                  <AlertCircle size={16} className="text-red-400 shrink-0" />
+                  <p className="text-xs text-red-300">{error}</p>
                 </div>
               )}
               <form onSubmit={handleVerifyOtp} className="space-y-4">
-                <div>
-                  <input
-                    type="text"
-                    value={otpCode}
-                    onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, "").substring(0, 6))}
-                    placeholder="000000"
-                    required
-                    maxLength={6}
-                    className="w-full px-4 py-4 bg-white/5 border border-white/10 rounded-xl text-white text-center text-3xl font-mono tracking-[0.5em] placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-transparent transition"
-                  />
-                  <p className="text-[10px] text-slate-500 mt-2 text-center">Kode berlaku 10 menit</p>
-                </div>
+                <input
+                  type="text"
+                  value={otpCode}
+                  onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, "").substring(0, 6))}
+                  placeholder="000000"
+                  required
+                  maxLength={6}
+                  className="w-full px-4 py-4 bg-white/5 border border-white/10 rounded-xl text-white text-center text-2xl font-mono tracking-[0.5em] placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-violet-500/50 transition"
+                />
                 <button
                   type="submit"
                   disabled={loading || otpCode.length !== 6}
-                  className="w-full flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-violet-600 to-purple-700 text-white font-bold rounded-xl shadow-lg shadow-violet-600/30 hover:shadow-violet-600/50 hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full py-3 bg-white text-slate-900 font-semibold rounded-xl text-sm hover:bg-slate-100 transition disabled:opacity-50"
                 >
-                  {loading ? (
-                    <><div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div><span>Memverifikasi...</span></>
-                  ) : (
-                    <><CheckCircle2 size={18} /><span>Verifikasi OTP</span></>
-                  )}
+                  {loading ? "Memproses..." : "Verifikasi"}
                 </button>
               </form>
-              <div className="mt-4 flex justify-between items-center">
-                <button onClick={handleCancel} className="text-xs text-slate-400 hover:text-white transition">← Kembali</button>
-                <button onClick={handleResendOtp} disabled={loading} className="text-xs text-violet-400 hover:text-violet-300 transition flex items-center gap-1">
-                  <RefreshCw size={12} /> Kirim ulang OTP
+              <div className="mt-4 flex items-center justify-between">
+                <button onClick={handleCancel} className="text-xs text-slate-400 hover:text-white flex items-center gap-1">
+                  <ArrowLeft size={12} /> Kembali
+                </button>
+                <button onClick={handleResendOtp} disabled={loading} className="text-xs text-violet-400 hover:text-violet-300">
+                  Kirim ulang
                 </button>
               </div>
             </>
@@ -320,41 +300,35 @@ export default function LoginPage() {
           {step === "pending" && (
             <>
               <div className="text-center mb-6">
-                <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-amber-500/20 backdrop-blur-md border border-amber-500/30 mb-3">
-                  <Clock size={28} className="text-amber-400" />
+                <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-amber-500/20 mb-3">
+                  <Clock size={24} className="text-amber-400" />
                 </div>
-                <h2 className="text-2xl font-bold text-white mb-1">Menunggu Approval</h2>
-                <p className="text-slate-400 text-xs">OTP berhasil diverifikasi!</p>
+                <h2 className="text-xl font-semibold text-white mb-1">Menunggu Approval</h2>
+                <p className="text-slate-400 text-xs">OTP terverifikasi</p>
               </div>
-              <div className="p-4 bg-amber-500/10 border border-amber-500/30 rounded-xl mb-4">
-                <p className="text-sm text-amber-200"><strong>📋 Status:</strong> Pending Approval</p>
-                <p className="text-xs text-amber-300/80 mt-2">Device Anda:</p>
-                <p className="text-xs text-white font-mono mt-1 bg-black/30 p-2 rounded-lg break-all">{deviceInfo?.deviceName}</p>
-                <p className="text-xs text-amber-300/80 mt-3">Mohon tunggu admin menyetujui device Anda.</p>
+              <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-lg mb-4">
+                <p className="text-xs text-amber-200">Status: Pending</p>
+                <p className="text-[10px] text-amber-300/70 mt-1">{deviceInfo?.deviceName}</p>
               </div>
               {error && (
-                <div className="mb-4 p-3 bg-red-500/10 border border-red-500/30 rounded-xl flex items-start gap-2">
-                  <AlertCircle size={18} className="text-red-400 shrink-0 mt-0.5" />
-                  <p className="text-sm text-red-300 whitespace-pre-line">{error}</p>
+                <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-lg flex items-center gap-2">
+                  <AlertCircle size={16} className="text-red-400 shrink-0" />
+                  <p className="text-xs text-red-300">{error}</p>
                 </div>
               )}
-              <div className="space-y-3">
+              <div className="space-y-2">
                 <button
                   onClick={checkApprovalStatus}
                   disabled={loading}
-                  className="w-full flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-amber-500 to-orange-600 text-white font-bold rounded-xl shadow-lg hover:-translate-y-0.5 transition-all disabled:opacity-50"
+                  className="w-full py-3 bg-white text-slate-900 font-semibold rounded-xl text-sm hover:bg-slate-100 transition disabled:opacity-50"
                 >
-                  {loading ? (
-                    <><div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div><span>Memeriksa...</span></>
-                  ) : (
-                    <><RefreshCw size={18} /><span>Cek Status Approval</span></>
-                  )}
+                  {loading ? "Memeriksa..." : "Cek Status"}
                 </button>
                 <button
                   onClick={handleCancel}
-                  className="w-full py-3 border border-white/10 text-slate-400 rounded-xl hover:bg-white/5 transition text-sm"
+                  className="w-full py-3 border border-white/10 text-slate-400 rounded-xl text-sm hover:bg-white/5 transition"
                 >
-                  Logout & Kembali
+                  Logout
                 </button>
               </div>
             </>
