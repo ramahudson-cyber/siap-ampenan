@@ -206,7 +206,7 @@
         });
         camera.start();
 
-        showStatus('Posisikan wajah di lingkaran');
+        showStatus('Posisikan wajah full di lingkaran');
       } catch (err) {
         showStatus('Gagal mengakses kamera');
         startBtn.style.display = 'block';
@@ -234,6 +234,41 @@
       captureBtn.style.display = 'block';
 
       const landmarks = results.multiFaceLandmarks[0];
+      
+      // === VALIDASI POSISI WAJAH FULL FRAME ===
+      // Ambil bounding box wajah dari landmark pertama (0) dan terakhir (467)
+      // MediaPipe mengembalikan koordinat normalisasi (0.0 - 1.0)
+      let minX = 1, maxX = 0, minY = 1, maxY = 0;
+      // Kita cek landmark kontur wajah (beberapa titik tepi)
+      const faceOval = [10, 152, 234, 454, 127, 356]; // Dahi, dagu, pipi kiri, pipi kanan
+      for (let i of faceOval) {
+        const pt = landmarks[i];
+        if (pt.x < minX) minX = pt.x;
+        if (pt.x > maxX) maxX = pt.x;
+        if (pt.y < minY) minY = pt.y;
+        if (pt.y > maxY) maxY = pt.y;
+      }
+      
+      // Cek apakah wajah terpotong (terlalu mepet tepi)
+      const margin = 0.05; // 5% margin dari tepi layar
+      const isCropped = minX < margin || maxX > (1 - margin) || minY < margin || maxY > (1 - margin);
+      
+      // Cek apakah wajah cukup besar (minimal 40% lebar layar)
+      const faceWidth = maxX - minX;
+      const isTooSmall = faceWidth < 0.40;
+      
+      if (isCropped || isTooSmall) {
+        captureBtn.disabled = true;
+        if (calibrationDone) {
+          if (isTooSmall) showStatus('Mendekatlah ke kamera');
+          else showStatus('Wajah terpotong, mundur sedikit');
+        }
+        return; // Stop di sini, jangan proses blink
+      }
+      
+      // Wajah valid
+      captureBtn.disabled = false;
+      captureBtn.style.display = 'block';
       
       // Hitung EAR dari 468 landmarks
       const leftEAR = calculateEAR(landmarks, LEFT_EYE);
