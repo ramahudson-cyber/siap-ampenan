@@ -140,11 +140,11 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-[#1a0533]">
-      {/* Gradient Orbs */}
-      <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-purple-700 rounded-full mix-blend-screen filter blur-[120px] opacity-30"></div>
-      <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-violet-800 rounded-full mix-blend-screen filter blur-[120px] opacity-25"></div>
-      <div className="absolute top-[40%] left-[30%] w-[300px] h-[300px] bg-indigo-700 rounded-full mix-blend-screen filter blur-[100px] opacity-20"></div>
+    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-gradient-to-br from-[#1a0533] via-[#0f0524] to-[#2d0a4e] animate-gradient-bg">
+      {/* Animated Gradient Orbs */}
+      <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-purple-700 rounded-full mix-blend-screen filter blur-[120px] opacity-30 animate-orb"></div>
+      <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-violet-800 rounded-full mix-blend-screen filter blur-[120px] opacity-25 animate-orb animate-orb-delay"></div>
+      <div className="absolute top-[40%] left-[30%] w-[300px] h-[300px] bg-indigo-700 rounded-full mix-blend-screen filter blur-[100px] opacity-20 animate-orb animate-orb-delay-2"></div>
 
       <div className="relative z-10 w-full max-w-[380px]">
         {/* Logo */}
