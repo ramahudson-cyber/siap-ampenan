@@ -3,14 +3,13 @@ import { useAuth } from "../../context/AuthContext";
 import { supabase } from "../../lib/supabase";
 import {
   MapPin, Camera, Clock, CheckCircle2,
-  RefreshCw, Loader2, ShieldAlert, X, Sparkles
+  RefreshCw, Loader2, ShieldAlert, X, Sparkles, ShieldCheck
 } from "lucide-react";
 import * as faceapi from "face-api.js";
 
 const PUSKESMAS_LOCATION = { latitude: -8.5699, longitude: 116.0770 };
 const RADIUS_METER = 50000; // TEST MODE — ubah ke 300 untuk produksi
 const MODEL_URL = "https://justadudewhohacks.github.io/face-api.js/models";
-const STANDARD_CLOCK_IN_HOUR = 8;
 
 function calculateDistance(lat1, lon1, lat2, lon2) {
   const R = 6371000;
@@ -56,7 +55,12 @@ export default function AttendancePage() {
   const [distance, setDistance] = useState(null);
   const [gpsAccuracy, setGpsAccuracy] = useState(null);
   const [currentCoords, setCurrentCoords] = useState(null);
-  const [currentTime, setCurrentTime] = useState(new Date());
+
+  // ⏰ SERVER TIME (anti-cheat)
+  const [serverTime, setServerTime] = useState(null);
+  const [serverOffset, setServerOffset] = useState(0); // ms
+  const [displayTime, setDisplayTime] = useState(new Date());
+
   const [modelsLoaded, setModelsLoaded] = useState(false);
   const [cameraOpen, setCameraOpen] = useState(false);
   const [faceStatus, setFaceStatus] = useState("idle");
@@ -66,8 +70,40 @@ export default function AttendancePage() {
   const [savingAttendance, setSavingAttendance] = useState(false);
   const [deviceVisitorId, setDeviceVisitorId] = useState("");
 
+  // ============================================================
+  // ⏰ SYNC SERVER TIME — anti-cheat timestamp
+  // ============================================================
+  const syncServerTime = async () => {
+    try {
+      const t0 = Date.now();
+      const { data, error } = await supabase.rpc("get_server_time");
+      const t1 = Date.now();
+      if (error) throw error;
+      const serverMs = new Date(data).getTime();
+      const roundTrip = t1 - t0;
+      // Offset = server - client (account for half round-trip)
+      const offset = serverMs - (t0 + roundTrip / 2);
+      setServerOffset(offset);
+      setServerTime(new Date(serverMs));
+    } catch (err) {
+      console.error("Server time sync failed:", err);
+      // Fallback: pakai device time (kurang aman, tapi tetap jalan)
+      setServerOffset(0);
+    }
+  };
+
+  // Display clock update (gunakan offset)
   useEffect(() => {
-    const t = setInterval(() => setCurrentTime(new Date()), 1000);
+    const t = setInterval(() => {
+      setDisplayTime(new Date(Date.now() + serverOffset));
+    }, 1000);
+    return () => clearInterval(t);
+  }, [serverOffset]);
+
+  // Fetch server time saat load + setiap 5 menit (anti drift)
+  useEffect(() => {
+    syncServerTime();
+    const t = setInterval(syncServerTime, 5 * 60 * 1000);
     return () => clearInterval(t);
   }, []);
 
@@ -95,14 +131,13 @@ export default function AttendancePage() {
       const result = await fp.get();
       setDeviceVisitorId(result.visitorId);
     } catch (err) {
-      console.error("Fingerprint error:", err);
       setDeviceVisitorId("fallback-" + Date.now());
     }
   };
 
   const fetchTodayAttendance = async () => {
     try {
-      const today = new Date().toISOString().split("T")[0];
+      const today = new Date(Date.now() + serverOffset).toISOString().split("T")[0];
       const { data } = await supabase
         .from("attendance")
         .select("*")
@@ -133,73 +168,46 @@ export default function AttendancePage() {
         setDistance(Math.round(dist));
         setLocationStatus(dist <= RADIUS_METER ? "valid" : "invalid");
       },
-      (err) => { setLocationStatus("error"); },
+      () => { setLocationStatus("error"); },
       { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
     );
   };
 
   // ============================================================
-  // SAVE ABSENSI — dengan error detail lengkap untuk debugging
+  // 💾 SAVE ABSENSI — PAKAI SERVER TIMESTAMP (TIDAK BISA DI-CHEAT)
   // ============================================================
   const saveAttendanceToSupabase = async (photoData, location) => {
     try {
       setSavingAttendance(true);
-      const now = new Date();
-      const today = now.toISOString().split("T")[0];
-
-      const standardTime = new Date(now);
-      standardTime.setHours(STANDARD_CLOCK_IN_HOUR, 0, 0, 0);
-      const lateMs = now - standardTime;
-      const isLate = lateMs > 0;
-      const lateMinutes = isLate ? Math.floor(lateMs / 60000) : 0;
-      const status = "hadir"; // hardcode untuk test
 
       const deviceName = getDeviceInfoLite();
+      const locationIn = location ? {
+        latitude: location.latitude,
+        longitude: location.longitude,
+        accuracy: location.accuracy,
+        altitude: location.altitude,
+        distance_from_puskesmas: distance,
+      } : null;
 
-      const payload = {
-        user_id: user.id,
-        date: today,
-        clock_in_time: now.toISOString(),
-        clock_out_time: null,
-        location_in: location ? {
-          latitude: location.latitude,
-          longitude: location.longitude,
-          accuracy: location.accuracy,
-          altitude: location.altitude,
-          distance_from_puskesmas: distance,
-        } : null,
-        location_out: null,
-        selfie_in_url: photoData,
-        selfie_out_url: null,
-        attendance_status: status,
-        shift_code: "PG",
-        is_late: isLate,
-        late_minutes: lateMinutes,
-        notes: null,
-        device_visitor_id: deviceVisitorId,
-        device_name: deviceName,
-      };
-
-      console.log("🔍 Payload yang akan di-insert:", payload);
-
-      const { data, error } = await supabase
-        .from("attendance")
-        .insert(payload)
-        .select()
-        .single();
+      // ⚡ Pakai RPC submit_attendance — timestamp di-generate SERVER
+      const { data, error } = await supabase.rpc("submit_attendance", {
+        p_selfie_in_url: photoData,
+        p_location_in: locationIn,
+        p_device_visitor_id: deviceVisitorId,
+        p_device_name: deviceName,
+      });
 
       if (error) {
-        console.error("❌ Insert error details:", error);
+        console.error("❌ submit_attendance error:", error);
         throw error;
       }
 
-      console.log("✅ Save berhasil:", data);
+      console.log("✅ Attendance saved (server timestamp):", data);
       await fetchTodayAttendance();
       return true;
     } catch (err) {
-      console.error("❌ saveAttendanceToSupabase error:", err);
-      const errorDetail = `${err.message || err.toString()} | Code: ${err.code || "N/A"} | Hint: ${err.hint || "N/A"}`;
-      setCameraError("GAGAL SAVE: " + errorDetail);
+      console.error("❌ save error:", err);
+      setCameraError("GAGAL SAVE: " + err.message);
       return false;
     } finally {
       setSavingAttendance(false);
@@ -208,7 +216,7 @@ export default function AttendancePage() {
 
   const openCameraModal = async () => {
     if (!modelsLoaded) {
-      setCameraError("AI model belum siap. Tunggu beberapa detik.");
+      setCameraError("AI model belum siap.");
       return;
     }
     setCameraError("");
@@ -224,7 +232,6 @@ export default function AttendancePage() {
       streamRef.current = stream;
 
       await new Promise(resolve => setTimeout(resolve, 300));
-
       if (!videoRef.current) throw new Error("Video element tidak ter-render.");
 
       const video = videoRef.current;
@@ -237,7 +244,7 @@ export default function AttendancePage() {
       });
 
       try { await video.play(); }
-      catch (playErr) {
+      catch {
         video.muted = true;
         await video.play().catch(() => {});
       }
@@ -246,7 +253,6 @@ export default function AttendancePage() {
       setFaceMessage("Posisikan wajah di dalam lingkaran");
       detectionLoop();
     } catch (err) {
-      console.error("Camera error:", err);
       setCameraError(
         err.name === "NotAllowedError" ? "Izin kamera ditolak." :
         err.name === "NotFoundError" ? "Kamera tidak ditemukan." :
@@ -296,13 +302,13 @@ export default function AttendancePage() {
       const isTooSmall = box.width < vw * 0.35 || box.height < vh * 0.35;
       if (isCropped || isTooSmall) {
         setFaceStatus("scanning");
-        setFaceMessage(isCropped ? "Wajah terpotong — posisikan full" : "Mendekatlah ke kamera");
+        setFaceMessage(isCropped ? "Wajah terpotong" : "Mendekatlah ke kamera");
         if (streamRef.current) requestAnimationFrame(detectionLoop);
         return;
       }
       if (detection.expressions.happy > 0.7) {
         setFaceStatus("scanning");
-        setFaceMessage("Senyum terdeteksi! Sedang menyimpan...");
+        setFaceMessage("Senyum terdeteksi! Menyimpan...");
 
         const canvas = canvasRef.current;
         canvas.width = videoRef.current.videoWidth;
@@ -330,22 +336,36 @@ export default function AttendancePage() {
       setFaceMessage("😊 Senyum ke kamera!");
       if (streamRef.current) requestAnimationFrame(detectionLoop);
     } catch (err) {
-      console.error("Detection error:", err);
       if (streamRef.current) requestAnimationFrame(detectionLoop);
     }
   };
 
-  const timeStr = currentTime.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
-  const dateStr = currentTime.toLocaleDateString("id-ID", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+  // ⏰ Pakai displayTime (server-synced) untuk clock UI
+  const timeStr = displayTime.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+  const dateStr = displayTime.toLocaleDateString("id-ID", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
 
   return (
     <>
       <div className="space-y-3 animate-fade-in">
+        {/* Time Card — pakai SERVER TIME */}
         <div className="relative bg-gradient-to-br from-violet-600 to-purple-800 rounded-2xl p-5 text-white shadow-xl shadow-purple-900/30 overflow-hidden">
           <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16"></div>
           <div className="relative">
-            <p className="text-[10px] opacity-70 uppercase tracking-wider">{dateStr}</p>
-            <p className="text-2xl font-bold mt-1">{timeStr}</p>
+            <div className="flex items-center justify-between">
+              <p className="text-[10px] opacity-70 uppercase tracking-wider">{dateStr}</p>
+              {serverTime && (
+                <div className="flex items-center gap-1 text-[9px] bg-white/10 px-2 py-1 rounded-full">
+                  <ShieldCheck size={10} />
+                  <span>Server Time</span>
+                </div>
+              )}
+            </div>
+            <p className="text-2xl font-bold mt-1 font-mono tabular-nums">{timeStr}</p>
+            {!serverTime && (
+              <p className="text-[10px] text-amber-200 mt-1 flex items-center gap-1">
+                <Loader2 size={10} className="animate-spin" /> Sinkron server...
+              </p>
+            )}
           </div>
         </div>
 
@@ -394,26 +414,32 @@ export default function AttendancePage() {
           )}
           {locationStatus === "checking" && <p className="text-xs text-slate-400">Mendeteksi...</p>}
           {locationStatus === "valid" && <p className="text-xs text-emerald-400">✅ Dalam radius ({distance}m)</p>}
-          {locationStatus === "invalid" && !isFakeGPS && (
-            <p className="text-xs text-red-400">❌ Di luar radius ({distance}m)</p>
-          )}
+          {locationStatus === "invalid" && !isFakeGPS && <p className="text-xs text-red-400">❌ Di luar radius ({distance}m)</p>}
           {locationStatus === "error" && <p className="text-xs text-red-400">GPS tidak aktif.</p>}
         </div>
 
         {!todayAttendance && (
           <button
             onClick={openCameraModal}
-            disabled={locationStatus !== "valid" || isFakeGPS || !modelsLoaded || savingAttendance}
+            disabled={locationStatus !== "valid" || isFakeGPS || !modelsLoaded || savingAttendance || !serverTime}
             className="w-full py-4 bg-gradient-to-r from-violet-600 to-purple-700 text-white rounded-2xl font-semibold transition disabled:opacity-40 flex items-center justify-center gap-2 shadow-xl shadow-purple-900/30"
           >
             {savingAttendance ? (
               <><Loader2 size={20} className="animate-spin" /> Menyimpan...</>
+            ) : !serverTime ? (
+              <><Loader2 size={20} className="animate-spin" /> Sinkron server...</>
             ) : modelsLoaded ? (
               <><Camera size={20} /> Verifikasi Wajah</>
             ) : (
               <><Loader2 size={20} className="animate-spin" /> Memuat AI...</>
             )}
           </button>
+        )}
+
+        {!serverTime && (
+          <p className="text-center text-[10px] text-violet-300/40">
+            ⏳ Menunggu sinkronisasi server time untuk mencegah manipulasi waktu
+          </p>
         )}
       </div>
 
@@ -432,11 +458,7 @@ export default function AttendancePage() {
                 <p className="text-violet-300/60 text-[11px]">Posisikan wajah & senyum</p>
               </div>
             </div>
-            <button
-              onClick={closeCameraModal}
-              className="w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 text-white flex items-center justify-center transition active:scale-95"
-              aria-label="Tutup"
-            >
+            <button onClick={closeCameraModal} className="w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 text-white flex items-center justify-center transition active:scale-95">
               <X size={20} />
             </button>
           </div>
@@ -449,30 +471,16 @@ export default function AttendancePage() {
 
           <div className="relative w-full max-w-md aspect-square">
             <div className="absolute -inset-4 bg-gradient-to-br from-violet-600/20 to-purple-800/20 rounded-[2rem] blur-2xl"></div>
-
             <div className="relative w-full h-full rounded-[2rem] overflow-hidden bg-slate-900 shadow-2xl border border-white/10">
-              <video
-                ref={videoRef}
-                autoPlay
-                playsInline
-                muted
-                width={640}
-                height={640}
-                className="w-full h-full object-cover"
-                style={{ transform: "scaleX(-1)" }}
-              />
+              <video ref={videoRef} autoPlay playsInline muted width={640} height={640} className="w-full h-full object-cover" style={{ transform: "scaleX(-1)" }} />
               <canvas ref={canvasRef} className="hidden" />
 
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <div
-                  className={`w-3/5 h-4/5 border-4 rounded-[50%] transition-all duration-300 ${
-                    faceStatus === "success" ? "border-violet-400 shadow-[0_0_50px_rgba(167,139,250,0.6)]" :
-                    faceStatus === "smiling" ? "border-violet-300 shadow-[0_0_40px_rgba(196,181,253,0.4)]" :
-                    faceStatus === "scanning" ? "border-violet-200/60" :
-                    "border-violet-300/30"
-                  }`}
-                  style={{ borderStyle: faceStatus === "scanning" || faceStatus === "idle" ? "dashed" : "solid" }}
-                ></div>
+                <div className={`w-3/5 h-4/5 border-4 rounded-[50%] transition-all duration-300 ${
+                  faceStatus === "success" ? "border-violet-400 shadow-[0_0_50px_rgba(167,139,250,0.6)]" :
+                  faceStatus === "smiling" ? "border-violet-300 shadow-[0_0_40px_rgba(196,181,253,0.4)]" :
+                  faceStatus === "scanning" ? "border-violet-200/60" : "border-violet-300/30"
+                }`} style={{ borderStyle: faceStatus === "scanning" || faceStatus === "idle" ? "dashed" : "solid" }}></div>
               </div>
 
               <div className="absolute top-4 left-4 w-6 h-6 border-l-2 border-t-2 border-white/40 rounded-tl-lg"></div>
@@ -510,12 +518,6 @@ export default function AttendancePage() {
               {faceMessage || "Menyiapkan kamera..."}
             </div>
           </div>
-
-          {faceStatus === "smiling" && (
-            <p className="relative text-center text-violet-300/50 text-[10px] mt-3 max-w-xs">
-              Tip: Tampilkan gigi untuk deteksi senyum yang lebih akurat
-            </p>
-          )}
         </div>
       )}
     </>
