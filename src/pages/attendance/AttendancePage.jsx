@@ -2,15 +2,14 @@ import { useState, useEffect, useRef } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { supabase } from "../../lib/supabase";
 import {
-  MapPin, Camera, Clock, CheckCircle2, AlertTriangle,
-  RefreshCw, Loader2, ShieldAlert
+  MapPin, Camera, Clock, CheckCircle2,
+  RefreshCw, Loader2, ShieldAlert, X
 } from "lucide-react";
 import * as faceapi from "face-api.js";
 
 // ============================================================
 // KONFIGURASI LOKASI PUSKESMAS (VERIFIED via Google Maps)
 // Puskesmas Perawatan Ampenan, Jl. Saleh Sungkar No.14
-// Sumber: https://maps.app.goo.gl/fsx6ybx4za2NNcNb6
 // ============================================================
 const PUSKESMAS_LOCATION = { latitude: -8.5699, longitude: 116.0770 };
 const RADIUS_METER = 300;
@@ -37,9 +36,11 @@ export default function AttendancePage() {
   const [currentCoords, setCurrentCoords] = useState(null);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [modelsLoaded, setModelsLoaded] = useState(false);
+  const [modelLoadingProgress, setModelLoadingProgress] = useState("Idle");
   const [cameraActive, setCameraActive] = useState(false);
   const [faceStatus, setFaceStatus] = useState("idle");
   const [faceMessage, setFaceMessage] = useState("");
+  const [cameraError, setCameraError] = useState("");
   const [isFakeGPS, setIsFakeGPS] = useState(false);
 
   useEffect(() => {
@@ -50,13 +51,18 @@ export default function AttendancePage() {
   useEffect(() => {
     const loadModels = async () => {
       try {
-        await Promise.all([
-          faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
-          faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
-          faceapi.nets.faceExpressionNet.loadFromUri(MODEL_URL)
-        ]);
+        setModelLoadingProgress("Mengunduh AI model (1/3)...");
+        await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
+        setModelLoadingProgress("Mengunduh AI model (2/3)...");
+        await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
+        setModelLoadingProgress("Mengunduh AI model (3/3)...");
+        await faceapi.nets.faceExpressionNet.loadFromUri(MODEL_URL);
+        setModelLoadingProgress("Selesai");
         setModelsLoaded(true);
-      } catch (err) { console.error("Gagal load model:", err); }
+      } catch (err) {
+        console.error("Gagal load model:", err);
+        setModelLoadingProgress("Gagal load AI: " + err.message);
+      }
     };
     loadModels();
     getLocation();
@@ -100,37 +106,77 @@ export default function AttendancePage() {
   };
 
   const startCamera = async () => {
-    if (!modelsLoaded) return;
+    if (!modelsLoaded) {
+      setCameraError("AI model belum siap. Tunggu sampai 100%.");
+      return;
+    }
+    setCameraError("");
+    setFaceStatus("loading");
+    setFaceMessage("Mengaktifkan kamera...");
     try {
-      setFaceStatus("loading");
-      setFaceMessage("Mengaktifkan kamera...");
-      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user", width: { ideal: 480 }, height: { ideal: 480 } }, audio: false });
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: "user", width: { ideal: 480 }, height: { ideal: 480 } },
+        audio: false
+      });
       videoRef.current.srcObject = stream;
       streamRef.current = stream;
       await new Promise(r => videoRef.current.onloadeddata = r);
-      videoRef.current.play();
+      await videoRef.current.play();
       setCameraActive(true);
       setFaceStatus("scanning");
       setFaceMessage("Posisikan wajah di lingkaran");
       detectionLoop();
-    } catch (err) { setFaceStatus("idle"); setFaceMessage("Gagal akses kamera"); }
+    } catch (err) {
+      console.error("Camera error:", err);
+      setCameraError(
+        err.name === "NotAllowedError" ? "Izin kamera ditolak. Buka Settings → Safari → Camera → Allow." :
+        err.name === "NotFoundError" ? "Kamera tidak ditemukan." :
+        "Gagal akses kamera: " + err.message
+      );
+      setFaceStatus("idle");
+      setFaceMessage("");
+    }
+  };
+
+  const stopCamera = () => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(t => t.stop());
+      streamRef.current = null;
+    }
+    setCameraActive(false);
+    setFaceStatus("idle");
+    setFaceMessage("");
   };
 
   const detectionLoop = async () => {
     if (!videoRef.current || !streamRef.current) return;
     try {
-      const detection = await faceapi.detectSingleFace(videoRef.current, new faceapi.TinyFaceDetectorOptions({ inputSize: 224, scoreThreshold: 0.3 })).withFaceLandmarks().withFaceExpressions();
-      if (!detection) { setFaceStatus("scanning"); setFaceMessage("Wajah tidak terdeteksi"); if (streamRef.current) requestAnimationFrame(detectionLoop); return; }
+      const detection = await faceapi.detectSingleFace(
+        videoRef.current,
+        new faceapi.TinyFaceDetectorOptions({ inputSize: 224, scoreThreshold: 0.3 })
+      ).withFaceLandmarks().withFaceExpressions();
+
+      if (!detection) {
+        setFaceStatus("scanning");
+        setFaceMessage("Wajah tidak terdeteksi. Coba terangi wajah.");
+        if (streamRef.current) requestAnimationFrame(detectionLoop);
+        return;
+      }
       const box = detection.detection.box;
       const vw = videoRef.current.videoWidth;
       const vh = videoRef.current.videoHeight;
       const margin = 20;
       const isCropped = box.x < margin || box.y < margin || box.x + box.width > vw - margin || box.y + box.height > vh - margin;
       const isTooSmall = box.width < vw * 0.4 || box.height < vh * 0.4;
-      if (isCropped || isTooSmall) { setFaceStatus("scanning"); setFaceMessage(isCropped ? "Wajah terpotong! Posisikan full" : "Mendekatlah ke kamera"); if (streamRef.current) requestAnimationFrame(detectionLoop); return; }
+      if (isCropped || isTooSmall) {
+        setFaceStatus("scanning");
+        setFaceMessage(isCropped ? "Wajah terpotong! Posisikan full" : "Mendekatlah ke kamera");
+        if (streamRef.current) requestAnimationFrame(detectionLoop);
+        return;
+      }
       if (detection.expressions.happy > 0.7) {
         setFaceStatus("success");
-        setFaceMessage("Senyum terdeteksi!");
+        setFaceMessage("✅ Senyum terdeteksi! Absensi berhasil.");
         const canvas = canvasRef.current;
         canvas.width = videoRef.current.videoWidth;
         canvas.height = videoRef.current.videoHeight;
@@ -140,16 +186,24 @@ export default function AttendancePage() {
         ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
         ctx.setTransform(1, 0, 0, 1, 0, 0);
         const photoData = canvas.toDataURL("image/jpeg", 0.8);
-        if (streamRef.current) { streamRef.current.getTracks().forEach(t => t.stop()); streamRef.current = null; }
+        if (streamRef.current) {
+          streamRef.current.getTracks().forEach(t => t.stop());
+          streamRef.current = null;
+        }
         setTodayAttendance({ clock_in_time: new Date().toISOString(), attendance_status: "hadir" });
-        setFaceStatus("idle");
-        setCameraActive(false);
+        setTimeout(() => {
+          setFaceStatus("idle");
+          setCameraActive(false);
+        }, 2000);
         return;
       }
       setFaceStatus("smiling");
       setFaceMessage("😊 Senyum ke kamera!");
       if (streamRef.current) requestAnimationFrame(detectionLoop);
-    } catch (err) { if (streamRef.current) requestAnimationFrame(detectionLoop); }
+    } catch (err) {
+      console.error("Detection error:", err);
+      if (streamRef.current) requestAnimationFrame(detectionLoop);
+    }
   };
 
   const timeStr = currentTime.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
@@ -166,7 +220,7 @@ export default function AttendancePage() {
         </div>
       </div>
 
-      {/* Status */}
+      {/* Status Absensi */}
       <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-4 border border-white/10">
         {todayAttendance ? (
           <div className="flex items-center gap-3">
@@ -188,7 +242,7 @@ export default function AttendancePage() {
         )}
       </div>
 
-      {/* GPS - Dengan Debug Info */}
+      {/* GPS */}
       <div className={`rounded-2xl border p-4 backdrop-blur-sm ${
         locationStatus === "valid" ? "bg-emerald-500/5 border-emerald-500/20" :
         locationStatus === "invalid" ? "bg-red-500/5 border-red-500/20" :
@@ -214,9 +268,7 @@ export default function AttendancePage() {
         {locationStatus === "invalid" && !isFakeGPS && (
           <p className="text-xs text-red-400">❌ Di luar radius ({distance}m) — Radius max: {RADIUS_METER}m</p>
         )}
-        {locationStatus === "error" && <p className="text-xs text-red-400">GPS tidak aktif / ditolak. Pastikan izin lokasi diaktifkan.</p>}
-
-        {/* DEBUG INFO - sementara untuk verifikasi */}
+        {locationStatus === "error" && <p className="text-xs text-red-400">GPS tidak aktif / ditolak.</p>}
         {currentCoords && (
           <div className="mt-3 pt-3 border-t border-white/10 space-y-1">
             <p className="text-[10px] text-slate-500 font-mono">
@@ -226,7 +278,7 @@ export default function AttendancePage() {
               🏥 Puskesmas: {PUSKESMAS_LOCATION.latitude.toFixed(6)}, {PUSKESMAS_LOCATION.longitude.toFixed(6)}
             </p>
             <p className="text-[10px] text-slate-500 font-mono">
-              📏 Akurasi GPS: ±{gpsAccuracy}m {gpsAccuracy > 100 && "(kurang akurat, coba ke luar ruangan 10 detik)"}
+              📏 Akurasi GPS: ±{gpsAccuracy}m
             </p>
           </div>
         )}
@@ -235,7 +287,30 @@ export default function AttendancePage() {
       {/* Face Verification */}
       {!todayAttendance && (
         <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-4 border border-white/10">
-          <p className="text-sm font-semibold text-white mb-3">Verifikasi Wajah (Senyum)</p>
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-sm font-semibold text-white">Verifikasi Wajah (Senyum)</p>
+            {cameraActive && (
+              <button onClick={stopCamera} className="text-xs text-red-400 flex items-center gap-1">
+                <X size={12} /> Tutup
+              </button>
+            )}
+          </div>
+
+          {/* AI Model Status */}
+          {!modelsLoaded && (
+            <div className="mb-3 p-3 bg-violet-500/10 rounded-lg flex items-center gap-2">
+              <Loader2 size={14} className="animate-spin text-violet-400" />
+              <p className="text-xs text-violet-300">{modelLoadingProgress}</p>
+            </div>
+          )}
+
+          {/* Error Message */}
+          {cameraError && (
+            <div className="mb-3 p-3 bg-red-500/10 rounded-lg">
+              <p className="text-xs text-red-300">{cameraError}</p>
+            </div>
+          )}
+
           {!cameraActive ? (
             <button
               onClick={startCamera}
