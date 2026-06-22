@@ -105,6 +105,9 @@ export default function AttendancePage() {
     );
   };
 
+  // ============================================================
+  // FIX: Camera function dengan proper video element waiting
+  // ============================================================
   const startCamera = async () => {
     if (!modelsLoaded) {
       setCameraError("AI model belum siap. Tunggu sampai 100%.");
@@ -113,16 +116,37 @@ export default function AttendancePage() {
     setCameraError("");
     setFaceStatus("loading");
     setFaceMessage("Mengaktifkan kamera...");
+
     try {
+      // 1. Dapatkan stream kamera DULU sebelum render video element
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: "user", width: { ideal: 480 }, height: { ideal: 480 } },
         audio: false
       });
-      videoRef.current.srcObject = stream;
-      streamRef.current = stream;
-      await new Promise(r => videoRef.current.onloadeddata = r);
-      await videoRef.current.play();
+
+      // 2. Set state untuk render video element
       setCameraActive(true);
+      streamRef.current = stream;
+
+      // 3. TUNGGU React render video element (critical fix)
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      // 4. Sekarang videoRef.current harusnya sudah ada
+      if (!videoRef.current) {
+        throw new Error("Video element tidak ter-render. Coba lagi.");
+      }
+
+      // 5. Set srcObject dan play
+      videoRef.current.srcObject = stream;
+      await new Promise(r => {
+        if (videoRef.current.readyState >= 2) {
+          r();
+        } else {
+          videoRef.current.onloadeddata = r;
+        }
+      });
+      await videoRef.current.play();
+
       setFaceStatus("scanning");
       setFaceMessage("Posisikan wajah di lingkaran");
       detectionLoop();
@@ -135,6 +159,12 @@ export default function AttendancePage() {
       );
       setFaceStatus("idle");
       setFaceMessage("");
+      // Cleanup stream kalau error
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(t => t.stop());
+        streamRef.current = null;
+      }
+      setCameraActive(false);
     }
   };
 
