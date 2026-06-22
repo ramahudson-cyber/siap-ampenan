@@ -106,7 +106,6 @@ export default function AttendancePage() {
   useEffect(() => {
     const loadModels = async () => {
       try {
-        // ⚡ Pakai preload yang sudah dimulai di main.jsx (lebih cepat)
         let preloadModule;
         try {
           preloadModule = await import("../../utils/preloadModels");
@@ -115,7 +114,6 @@ export default function AttendancePage() {
         if (preloadModule) {
           await preloadModule.preloadFaceModels();
         } else {
-          // Fallback: load langsung
           await Promise.all([
             faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
             faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
@@ -181,29 +179,64 @@ export default function AttendancePage() {
   };
 
   // ============================================================
-  // 💾 SAVE ABSENSI — PAKAI SERVER TIMESTAMP (TIDAK BISA DI-CHEAT)
+  // 💾 SAVE ABSENSI — DIRECT UPSERT (bukan RPC, lebih reliable)
   // ============================================================
   const saveAttendanceToSupabase = async (photoData, location) => {
     try {
       setSavingAttendance(true);
       const deviceName = getDeviceInfoLite();
-      const locationIn = location ? {
-        latitude: location.latitude,
-        longitude: location.longitude,
-        accuracy: location.accuracy,
-        altitude: location.altitude,
-        distance_from_puskesmas: distance,
-      } : null;
 
-      const { data, error } = await supabase.rpc("submit_attendance", {
-        p_selfie_in_url: photoData,
-        p_location_in: locationIn,
-        p_device_visitor_id: deviceVisitorId,
-        p_device_name: deviceName,
+      // ⏰ Ambil server time (anti-cheat timestamp)
+      const { data: serverNow, error: timeErr } = await supabase.rpc("get_server_time");
+      if (timeErr) throw timeErr;
+      const now = new Date(serverNow);
+      const today = now.toISOString().split("T")[0];
+
+      // Hitung keterlambatan berdasarkan SERVER TIME
+      const standardTime = new Date(now);
+      standardTime.setHours(8, 0, 0, 0);
+      const isLate = now > standardTime;
+      const lateMinutes = isLate ? Math.floor((now - standardTime) / 60000) : 0;
+      const status = "hadir"; // hardcode untuk test enum
+
+      const payload = {
+        user_id: user.id,
+        date: today,
+        clock_in_time: now.toISOString(),
+        clock_out_time: null,
+        location_in: location ? {
+          latitude: location.latitude,
+          longitude: location.longitude,
+          accuracy: location.accuracy,
+          altitude: location.altitude,
+          distance_from_puskesmas: distance,
+        } : null,
+        location_out: null,
+        selfie_in_url: photoData,
+        selfie_out_url: null,
+        attendance_status: status,
+        shift_code: "PG",
+        is_late: isLate,
+        late_minutes: lateMinutes,
+        notes: null,
+        device_visitor_id: deviceVisitorId,
+        device_name: deviceName,
+      };
+
+      console.log("🔍 Payload yang akan di-insert (selfie truncated):", {
+        ...payload,
+        selfie_in_url: photoData.substring(0, 50) + "...[truncated]"
       });
 
+      // ⚡ DIRECT UPSERT (bukan RPC) — lebih reliable
+      const { data, error } = await supabase
+        .from("attendance")
+        .upsert(payload, { onConflict: "user_id,date" })
+        .select()
+        .single();
+
       if (error) {
-        console.error("❌ submit_attendance error:", error);
+        console.error("❌ Insert error details:", error);
         throw error;
       }
 
@@ -212,7 +245,8 @@ export default function AttendancePage() {
       return true;
     } catch (err) {
       console.error("❌ save error:", err);
-      setCameraError("GAGAL SAVE: " + err.message);
+      const errorDetail = `${err.message || err.toString()} | Code: ${err.code || "N/A"} | Hint: ${err.hint || "N/A"}`;
+      setCameraError("GAGAL SAVE: " + errorDetail);
       return false;
     } finally {
       setSavingAttendance(false);
@@ -233,11 +267,8 @@ export default function AttendancePage() {
     setCameraOpen(true);
 
     try {
-      // ⚡ STEP 1: Tampilkan modal DULU, lalu mulai camera
       await new Promise(resolve => requestAnimationFrame(resolve));
 
-      // ⚡ STEP 2: getUserMedia dengan constraint MINIMAL
-      // (biarkan Safari pilih resolution tercepat)
       setFaceMessage("Meminta izin kamera...");
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: "user" },
@@ -245,7 +276,6 @@ export default function AttendancePage() {
       });
       streamRef.current = stream;
 
-      // ⚡ STEP 3: Tunggu React render <video> element
       setFaceMessage("Menyiapkan tampilan...");
       await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
 
@@ -254,7 +284,6 @@ export default function AttendancePage() {
       const video = videoRef.current;
       video.srcObject = stream;
 
-      // ⚡ STEP 4: Tunggu metadata + play (gabung dalam 1 step)
       setFaceMessage("Menyalakan kamera...");
       await new Promise((resolve, reject) => {
         let resolved = false;
