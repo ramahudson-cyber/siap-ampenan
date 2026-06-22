@@ -1,3 +1,6 @@
+import { preloadFaceModels } from "./utils/preloadModels";
+// Di luar komponen, jalankan preload
+preloadFaceModels();
 import { ThemeProvider } from "./context/ThemeContext";
 import { AuthProvider } from "./context/AuthContext";
 import AppRoutes from "./routes/AppRoutes";

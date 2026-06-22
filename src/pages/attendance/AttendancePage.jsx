@@ -58,7 +58,7 @@ export default function AttendancePage() {
 
   // ⏰ SERVER TIME (anti-cheat)
   const [serverTime, setServerTime] = useState(null);
-  const [serverOffset, setServerOffset] = useState(0); // ms
+  const [serverOffset, setServerOffset] = useState(0);
   const [displayTime, setDisplayTime] = useState(new Date());
 
   const [modelsLoaded, setModelsLoaded] = useState(false);
@@ -81,18 +81,15 @@ export default function AttendancePage() {
       if (error) throw error;
       const serverMs = new Date(data).getTime();
       const roundTrip = t1 - t0;
-      // Offset = server - client (account for half round-trip)
       const offset = serverMs - (t0 + roundTrip / 2);
       setServerOffset(offset);
       setServerTime(new Date(serverMs));
     } catch (err) {
       console.error("Server time sync failed:", err);
-      // Fallback: pakai device time (kurang aman, tapi tetap jalan)
       setServerOffset(0);
     }
   };
 
-  // Display clock update (gunakan offset)
   useEffect(() => {
     const t = setInterval(() => {
       setDisplayTime(new Date(Date.now() + serverOffset));
@@ -100,7 +97,6 @@ export default function AttendancePage() {
     return () => clearInterval(t);
   }, [serverOffset]);
 
-  // Fetch server time saat load + setiap 5 menit (anti drift)
   useEffect(() => {
     syncServerTime();
     const t = setInterval(syncServerTime, 5 * 60 * 1000);
@@ -179,7 +175,6 @@ export default function AttendancePage() {
   const saveAttendanceToSupabase = async (photoData, location) => {
     try {
       setSavingAttendance(true);
-
       const deviceName = getDeviceInfoLite();
       const locationIn = location ? {
         latitude: location.latitude,
@@ -189,7 +184,6 @@ export default function AttendancePage() {
         distance_from_puskesmas: distance,
       } : null;
 
-      // ⚡ Pakai RPC submit_attendance — timestamp di-generate SERVER
       const { data, error } = await supabase.rpc("submit_attendance", {
         p_selfie_in_url: photoData,
         p_location_in: locationIn,
@@ -214,6 +208,9 @@ export default function AttendancePage() {
     }
   };
 
+  // ============================================================
+  // 📷 CAMERA — OPTIMIZED FOR SPEED (Safari PWA)
+  // ============================================================
   const openCameraModal = async () => {
     if (!modelsLoaded) {
       setCameraError("AI model belum siap.");
@@ -221,41 +218,50 @@ export default function AttendancePage() {
     }
     setCameraError("");
     setFaceStatus("loading");
-    setFaceMessage("Menyiapkan kamera...");
+    setFaceMessage("Mengaktifkan kamera...");
     setCameraOpen(true);
 
     try {
+      // ⚡ Resolution lebih kecil = load lebih cepat
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "user", width: { ideal: 640 }, height: { ideal: 640 } },
+        video: {
+          facingMode: "user",
+          width: { ideal: 480 },
+          height: { ideal: 480 },
+        },
         audio: false
       });
       streamRef.current = stream;
 
-      await new Promise(resolve => setTimeout(resolve, 300));
+      // ⚡ Pakai requestAnimationFrame (lebih cepat dari setTimeout 300ms)
+      await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+
       if (!videoRef.current) throw new Error("Video element tidak ter-render.");
 
       const video = videoRef.current;
       video.srcObject = stream;
 
+      // ⚡ Gabung onloadedmetadata + play dalam 1 step
       await new Promise((resolve, reject) => {
-        video.onloadedmetadata = resolve;
+        video.onloadedmetadata = () => {
+          video.play().then(resolve).catch(() => {
+            video.muted = true;
+            video.play().then(resolve).catch(reject);
+          });
+        };
         video.onerror = reject;
-        setTimeout(reject, 5000);
+        setTimeout(() => reject(new Error("Timeout loading video")), 8000);
       });
-
-      try { await video.play(); }
-      catch {
-        video.muted = true;
-        await video.play().catch(() => {});
-      }
 
       setFaceStatus("scanning");
       setFaceMessage("Posisikan wajah di dalam lingkaran");
       detectionLoop();
     } catch (err) {
+      console.error("Camera error:", err);
       setCameraError(
-        err.name === "NotAllowedError" ? "Izin kamera ditolak." :
+        err.name === "NotAllowedError" ? "Izin kamera ditolak. Buka Settings → Safari → Camera → Allow." :
         err.name === "NotFoundError" ? "Kamera tidak ditemukan." :
+        err.name === "NotReadableError" ? "Kamera sedang dipakai app lain. Tutup app lain lalu coba lagi." :
         "Gagal akses kamera: " + err.message
       );
       setFaceStatus("idle");
@@ -340,14 +346,12 @@ export default function AttendancePage() {
     }
   };
 
-  // ⏰ Pakai displayTime (server-synced) untuk clock UI
   const timeStr = displayTime.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
   const dateStr = displayTime.toLocaleDateString("id-ID", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
 
   return (
     <>
       <div className="space-y-3 animate-fade-in">
-        {/* Time Card — pakai SERVER TIME */}
         <div className="relative bg-gradient-to-br from-violet-600 to-purple-800 rounded-2xl p-5 text-white shadow-xl shadow-purple-900/30 overflow-hidden">
           <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16"></div>
           <div className="relative">
@@ -355,8 +359,7 @@ export default function AttendancePage() {
               <p className="text-[10px] opacity-70 uppercase tracking-wider">{dateStr}</p>
               {serverTime && (
                 <div className="flex items-center gap-1 text-[9px] bg-white/10 px-2 py-1 rounded-full">
-                  <ShieldCheck size={10} />
-                  <span>Server Time</span>
+                  <ShieldCheck size={10} /> <span>Server Time</span>
                 </div>
               )}
             </div>
@@ -472,7 +475,7 @@ export default function AttendancePage() {
           <div className="relative w-full max-w-md aspect-square">
             <div className="absolute -inset-4 bg-gradient-to-br from-violet-600/20 to-purple-800/20 rounded-[2rem] blur-2xl"></div>
             <div className="relative w-full h-full rounded-[2rem] overflow-hidden bg-slate-900 shadow-2xl border border-white/10">
-              <video ref={videoRef} autoPlay playsInline muted width={640} height={640} className="w-full h-full object-cover" style={{ transform: "scaleX(-1)" }} />
+              <video ref={videoRef} autoPlay playsInline muted width={480} height={480} className="w-full h-full object-cover" style={{ transform: "scaleX(-1)" }} />
               <canvas ref={canvasRef} className="hidden" />
 
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
