@@ -8,12 +8,12 @@ import {
 import * as faceapi from "face-api.js";
 
 // ============================================================
-// KONFIGURASI LOKASI PUSKESMAS
-// Default: -8.5697, 116.0821 (perlu diverifikasi)
-// Radius: 500 meter (cukup untuk GPS dalam gedung)
+// KONFIGURASI LOKASI PUSKESMAS (VERIFIED via Google Maps)
+// Puskesmas Perawatan Ampenan, Jl. Saleh Sungkar No.14
+// Sumber: https://maps.app.goo.gl/fsx6ybx4za2NNcNb6
 // ============================================================
-const PUSKESMAS_LOCATION = { latitude: -8.5697, longitude: 116.0821 };
-const RADIUS_METER = 500;
+const PUSKESMAS_LOCATION = { latitude: -8.5699, longitude: 116.0770 };
+const RADIUS_METER = 300;
 const MODEL_URL = "https://justadudewhohacks.github.io/face-api.js/models";
 
 function calculateDistance(lat1, lon1, lat2, lon2) {
@@ -31,7 +31,6 @@ export default function AttendancePage() {
   const streamRef = useRef(null);
 
   const [todayAttendance, setTodayAttendance] = useState(null);
-  const [loading, setLoading] = useState(false);
   const [locationStatus, setLocationStatus] = useState("checking");
   const [distance, setDistance] = useState(null);
   const [gpsAccuracy, setGpsAccuracy] = useState(null);
@@ -189,7 +188,7 @@ export default function AttendancePage() {
         )}
       </div>
 
-      {/* GPS - Dengan Debugging Info */}
+      {/* GPS - Dengan Debug Info */}
       <div className={`rounded-2xl border p-4 backdrop-blur-sm ${
         locationStatus === "valid" ? "bg-emerald-500/5 border-emerald-500/20" :
         locationStatus === "invalid" ? "bg-red-500/5 border-red-500/20" :
@@ -211,13 +210,13 @@ export default function AttendancePage() {
           </div>
         )}
         {locationStatus === "checking" && <p className="text-xs text-slate-400">Mendeteksi...</p>}
-        {locationStatus === "valid" && <p className="text-xs text-emerald-400">Dalam radius ({distance}m)</p>}
+        {locationStatus === "valid" && <p className="text-xs text-emerald-400">✅ Dalam radius ({distance}m)</p>}
         {locationStatus === "invalid" && !isFakeGPS && (
-          <p className="text-xs text-red-400">Di luar radius ({distance}m) — Radius max: {RADIUS_METER}m</p>
+          <p className="text-xs text-red-400">❌ Di luar radius ({distance}m) — Radius max: {RADIUS_METER}m</p>
         )}
         {locationStatus === "error" && <p className="text-xs text-red-400">GPS tidak aktif / ditolak. Pastikan izin lokasi diaktifkan.</p>}
 
-        {/* DEBUG INFO - untuk troubleshooting */}
+        {/* DEBUG INFO - sementara untuk verifikasi */}
         {currentCoords && (
           <div className="mt-3 pt-3 border-t border-white/10 space-y-1">
             <p className="text-[10px] text-slate-500 font-mono">
@@ -227,7 +226,7 @@ export default function AttendancePage() {
               🏥 Puskesmas: {PUSKESMAS_LOCATION.latitude.toFixed(6)}, {PUSKESMAS_LOCATION.longitude.toFixed(6)}
             </p>
             <p className="text-[10px] text-slate-500 font-mono">
-              📏 Akurasi GPS: ±{gpsAccuracy}m {gpsAccuracy > 100 && "(kurang akurat, coba ke luar ruangan)"}
+              📏 Akurasi GPS: ±{gpsAccuracy}m {gpsAccuracy > 100 && "(kurang akurat, coba ke luar ruangan 10 detik)"}
             </p>
           </div>
         )}
