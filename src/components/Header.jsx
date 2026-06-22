@@ -1,4 +1,4 @@
-import { Bell, LogOut, Menu, Moon, Sun } from "lucide-react";
+import { Bell, LogOut, Moon, Sun } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useTheme } from "../context/ThemeContext";
 import { signOut } from "../services/authService";
@@ -29,23 +29,23 @@ function Header({ onMenuClick }) {
 
   return (
     <header
-      className="sticky top-0 z-30 bg-[#160a29]/95 backdrop-blur-xl border-b border-white/10"
+      className="sticky top-0 z-20 bg-[#160a29]/95 backdrop-blur-xl border-b border-white/10"
       style={{
         paddingTop: "env(safe-area-inset-top)",
         paddingLeft: "env(safe-area-inset-left)",
         paddingRight: "env(safe-area-inset-right)",
       }}
     >
-      <div className="flex items-center justify-between h-[60px] px-4 md:px-6">
-        {/* LEFT: Hamburger (mobile only) + Title */}
+      <div className="flex items-center justify-between h-[60px] px-5 md:px-6">
+        {/* LEFT: Logo + Title (no more hamburger) */}
         <div className="flex items-center gap-3 min-w-0 flex-1">
-          <button
-            onClick={onMenuClick}
-            aria-label="Open menu"
-            className="md:hidden p-2.5 -ml-1 rounded-xl bg-white/5 hover:bg-white/10 text-violet-200 transition shrink-0 active:scale-95"
-          >
-            <Menu size={26} strokeWidth={2.2} />
-          </button>
+          <div className="w-9 h-9 bg-gradient-to-br from-violet-500 to-purple-700 rounded-xl flex items-center justify-center shadow-lg shrink-0 md:hidden">
+            <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5 text-white">
+              <path d="M12 2L2 7v10l10 5 10-5V7L12 2z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/>
+              <path d="M12 22V12M2 7l10 5 10-5" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/>
+              <circle cx="12" cy="12" r="2" fill="currentColor"/>
+            </svg>
+          </div>
           <h1 className="text-lg md:text-2xl font-bold text-white truncate tracking-tight">
             {title}
           </h1>
