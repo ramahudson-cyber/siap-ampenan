@@ -69,6 +69,7 @@ export default function AttendancePage() {
   const [isFakeGPS, setIsFakeGPS] = useState(false);
   const [savingAttendance, setSavingAttendance] = useState(false);
   const [deviceVisitorId, setDeviceVisitorId] = useState("");
+  const cameraStartingRef = useRef(false);
 
   // ============================================================
   // ⏰ SYNC SERVER TIME — anti-cheat timestamp
@@ -144,6 +145,7 @@ export default function AttendancePage() {
     getLocation();
     fetchTodayAttendance();
     getDeviceVisitorId();
+    return () => cleanupCamera();
   }, []);
 
   const getDeviceVisitorId = async () => {
@@ -278,31 +280,65 @@ export default function AttendancePage() {
   };
 
   // ============================================================
-  // 📷 CAMERA — OPTIMIZED
+  // 📷 CAMERA — SAFARI PWA OPTIMIZED
   // ============================================================
   const openCameraModal = async () => {
+    if (cameraStartingRef.current) return;
     if (!modelsLoaded) {
       setCameraError("AI model belum siap. Tunggu beberapa detik.");
       return;
     }
+    cameraStartingRef.current = true;
     setCameraError("");
     setFaceStatus("loading");
-    setFaceMessage("Meminta izin kamera...");
-    setCameraOpen(true);
+    setFaceMessage("Mengakses kamera...");
 
     try {
+      // ✅ SAFARI PWA: panggil getUserMedia SEBELUM render modal
+      // biar user gesture chain tidak putus (Safari PWA butuh ini)
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "user" },
+        video: {
+          facingMode: "user",
+          width: { ideal: 480 },
+          height: { ideal: 640 }
+        },
         audio: false
       });
       streamRef.current = stream;
 
-      if (!videoRef.current) throw new Error("Video element tidak ter-render.");
+      // Baru render modal setelah stream didapat
+      setCameraOpen(true);
+      setFaceMessage("Menyiapkan kamera...");
 
-      const video = videoRef.current;
+      // Tunggu video element muncul di DOM
+      let video = videoRef.current;
+      if (!video) {
+        await new Promise(resolve => requestAnimationFrame(resolve));
+        video = videoRef.current;
+        if (!video) throw new Error("Video element tidak ter-render.");
+      }
+
       video.srcObject = stream;
 
-      await video.play();
+      // ✅ SAFARI WAJIB: onloadedmetadata sebelum play()
+      await new Promise((resolve, reject) => {
+        let resolved = false;
+        const done = () => { if (!resolved) { resolved = true; resolve(); } };
+        const fail = (err) => { if (!resolved) { resolved = true; reject(err); } };
+
+        if (video.readyState >= 2) {
+          video.play().then(done).catch(fail);
+        } else {
+          video.onloadedmetadata = () => {
+            video.play().then(done).catch(() => {
+              video.muted = true;
+              video.play().then(done).catch(fail);
+            });
+          };
+          video.onerror = fail;
+          setTimeout(() => fail(new Error("Timeout kamera")), 15000);
+        }
+      });
 
       setFaceStatus("scanning");
       setFaceMessage("Posisikan wajah di dalam lingkaran");
@@ -310,7 +346,7 @@ export default function AttendancePage() {
     } catch (err) {
       console.error("Camera error:", err);
       setCameraError(
-        err.name === "NotAllowedError" ? "Izin kamera ditolak." :
+        err.name === "NotAllowedError" ? "Izin kamera ditolak. Settings → Safari → Camera → Allow." :
         err.name === "NotFoundError" ? "Kamera tidak ditemukan." :
         err.name === "NotReadableError" ? "Kamera sedang dipakai app lain." :
         "Gagal akses kamera: " + err.message
@@ -319,6 +355,8 @@ export default function AttendancePage() {
       setFaceMessage("");
       cleanupCamera();
       setCameraOpen(false);
+    } finally {
+      cameraStartingRef.current = false;
     }
   };
 
