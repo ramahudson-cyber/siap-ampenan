@@ -39,8 +39,8 @@ export default function Sidebar({ menuOpen = false, setMenuOpen = () => {} }) {
   return (
     <>
       <aside
-        className={`fixed top-0 left-0 h-full w-[260px] bg-[#160a29]/95 backdrop-blur-xl text-white flex flex-col z-40 border-r border-white/10 transition-transform duration-300
-        ${menuOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}`}
+        className={`fixed top-0 left-0 h-full w-[260px] sidebar-gradient text-white flex flex-col z-40 border-r border-white/15 shadow-2xl shadow-violet-950/20 transition-transform duration-300
+        ${menuOpen ? "translate-x-0" : "-translate-x-full xl:translate-x-0"}`}
         style={{ paddingTop: "env(safe-area-inset-top)" }}
       >
         {/* Logo */}
@@ -55,30 +55,30 @@ export default function Sidebar({ menuOpen = false, setMenuOpen = () => {} }) {
             </div>
             <div>
               <h1 className="text-lg font-bold tracking-wide">SIAP</h1>
-              <p className="text-[10px] text-violet-300/70">Puskesmas Ampenan</p>
+              <p className="text-[10px] text-violet-100/70">Puskesmas Ampenan</p>
             </div>
           </div>
-          <button onClick={() => setMenuOpen(false)} className="md:hidden p-1.5 text-violet-300 hover:text-white hover:bg-white/10 rounded-lg transition">
+          <button onClick={() => setMenuOpen(false)} className="xl:hidden p-1.5 text-violet-300 hover:text-white hover:bg-white/10 rounded-lg transition">
             <X size={18} />
           </button>
         </div>
 
         {/* User Info */}
-        <div className="px-5 py-4 border-b border-white/10">
+        <div className="px-5 py-4 border-b border-white/10 bg-white/[0.03]">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-full bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center text-xs font-bold shrink-0">
               {user?.full_name?.charAt(0) || user?.username?.charAt(0) || "U"}
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold truncate">{user?.full_name || user?.username || "User"}</p>
-              <p className="text-[10px] text-violet-300/60 capitalize">{userRole.replace("_", " ")}</p>
+              <p className="text-[10px] text-violet-100/60 capitalize">{userRole.replace("_", " ")}</p>
             </div>
           </div>
         </div>
 
         {/* Menu */}
         <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-          <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest px-3 mb-2">Menu Utama</p>
+          <p className="text-[9px] font-bold text-violet-100/40 uppercase tracking-widest px-3 mb-2">Menu Utama</p>
           {menus.map((item) => {
             const Icon = item.icon;
             return (
@@ -91,7 +91,7 @@ export default function Sidebar({ menuOpen = false, setMenuOpen = () => {} }) {
                   `flex items-center gap-3 px-3 py-3 rounded-xl transition-all text-sm ${
                     isActive
                       ? "bg-gradient-to-r from-violet-600 to-purple-700 text-white shadow-lg shadow-violet-900/30 font-semibold"
-                      : "text-slate-400 hover:text-white hover:bg-white/5"
+                      : "text-violet-100/65 hover:text-white hover:bg-white/10"
                   }`
                 }
               >

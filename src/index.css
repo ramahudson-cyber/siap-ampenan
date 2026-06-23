@@ -13,6 +13,11 @@ body,
   background: #0f0524;
 }
 
+html:not(.dark) body,
+html:not(.dark) #root {
+  background: #f8fafc;
+}
+
 /* === ANIMATED GRADIENT BACKGROUND === */
 @keyframes gradientShift {
   0%   { background-position: 0% 50%; }
@@ -86,6 +91,66 @@ body,
   mask-image: radial-gradient(circle at center, rgba(0, 0, 0, 0.55), transparent 72%);
   animation: gridDrift 28s linear infinite;
   opacity: 0.32;
+}
+
+.sidebar-gradient {
+  background:
+    radial-gradient(circle at 22% 0%, rgba(168, 85, 247, 0.42), transparent 34%),
+    linear-gradient(160deg, rgba(3, 7, 18, 0.98) 0%, rgba(34, 12, 65, 0.96) 48%, rgba(88, 28, 135, 0.94) 100%);
+  backdrop-filter: blur(22px);
+}
+
+html:not(.dark) .sidebar-gradient {
+  background:
+    radial-gradient(circle at 18% 0%, rgba(192, 132, 252, 0.42), transparent 34%),
+    linear-gradient(160deg, rgba(17, 24, 39, 0.98) 0%, rgba(67, 33, 111, 0.96) 52%, rgba(109, 40, 217, 0.92) 100%);
+}
+
+html:not(.dark) .professional-ambient-bg {
+  background:
+    radial-gradient(circle at 20% 20%, rgba(124, 58, 237, 0.12), transparent 32%),
+    radial-gradient(circle at 78% 10%, rgba(14, 165, 233, 0.1), transparent 28%),
+    radial-gradient(circle at 55% 86%, rgba(168, 85, 247, 0.1), transparent 34%);
+}
+
+html:not(.dark) .professional-grid-bg {
+  background-image:
+    linear-gradient(rgba(15, 23, 42, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15, 23, 42, 0.05) 1px, transparent 1px);
+  opacity: 0.45;
+}
+
+html:not(.dark) .bg-white\/5,
+html:not(.dark) .bg-white\/\[0\.03\] {
+  background-color: rgba(255, 255, 255, 0.72);
+}
+
+html:not(.dark) .border-white\/10,
+html:not(.dark) .border-white\/5 {
+  border-color: rgba(148, 163, 184, 0.28);
+}
+
+html:not(.dark) .text-white {
+  color: #0f172a;
+}
+
+html:not(.dark) .sidebar-gradient .text-white,
+html:not(.dark) .sidebar-gradient svg {
+  color: #ffffff;
+}
+
+html:not(.dark) .text-violet-200\/60,
+html:not(.dark) .text-violet-200\/70,
+html:not(.dark) .text-violet-200\/80,
+html:not(.dark) .text-violet-100\/90 {
+  color: rgba(51, 65, 85, 0.82);
+}
+
+html:not(.dark) .text-violet-300\/60,
+html:not(.dark) .text-violet-300\/50,
+html:not(.dark) .text-violet-300\/40,
+html:not(.dark) .text-violet-300\/30 {
+  color: rgba(71, 85, 105, 0.68);
 }
 
 @media (prefers-reduced-motion: reduce) {
