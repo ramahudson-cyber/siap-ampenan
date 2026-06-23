@@ -251,7 +251,7 @@ function TabProfilPuskesmas() {
   return (
     <div className="space-y-5">
       <div className="flex items-center justify-between gap-3 flex-wrap">
-        <div>
+        <div className="min-w-0">
           <h2 className={sectionTitle}>Lokasi Puskesmas</h2>
           <p className={sectionSub}>Kelola lokasi puskesmas & radius absensi GPS</p>
         </div>
@@ -387,9 +387,9 @@ function TabProfilPuskesmas() {
           <div className="divide-y divide-white/5">
             {locations.map((loc) => (
               <div key={loc.id} className="p-4 md:p-5 hover:bg-white/5 transition-all">
-                <div className="flex items-start justify-between gap-4">
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
                   <div className="flex items-start gap-3 flex-1 min-w-0">
-                    <div className={`p-2.5 rounded-xl ${loc.is_active ? "bg-emerald-500/15" : "bg-white/5"}`}>
+                    <div className={`p-2.5 rounded-xl shrink-0 ${loc.is_active ? "bg-emerald-500/15" : "bg-white/5"}`}>
                       <MapPin size={18} className={loc.is_active ? "text-emerald-300" : "text-violet-300/50"} />
                     </div>
                     <div className="flex-1 min-w-0">
@@ -401,15 +401,15 @@ function TabProfilPuskesmas() {
                           </span>
                         )}
                       </div>
-                      {loc.address && <p className="text-sm text-violet-200/60 mb-1">{loc.address}</p>}
+                      {loc.address && <p className="text-sm text-violet-200/60 mb-1 break-words">{loc.address}</p>}
                       <div className="flex flex-wrap gap-3 text-xs text-violet-300/50 mt-1">
-                        <span className="font-mono">📍 {loc.latitude}, {loc.longitude}</span>
+                        <span className="font-mono break-all">📍 {loc.latitude}, {loc.longitude}</span>
                         <span>📏 {loc.radius_meter}m</span>
                       </div>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-1 shrink-0">
+                  <div className="flex items-center gap-1 shrink-0 justify-end sm:justify-start">
                     {!loc.is_active && (
                       <button
                         onClick={() => handleSetActive(loc.id, loc.name)}
@@ -1329,8 +1329,8 @@ export default function PengaturanPage() {
   ];
 
   return (
-    <div className="space-y-6 p-4 md:p-6 pb-20 md:pb-6 animate-fade-in">
-      <div>
+    <div className="space-y-6 p-4 md:p-6 pb-20 md:pb-6 animate-fade-in min-w-0">
+      <div className="min-w-0">
         <h1 className="text-2xl md:text-3xl font-bold text-white tracking-tight">Pengaturan Sistem</h1>
         <p className="text-violet-300/60 mt-1.5 text-sm">
           Kelola konfigurasi aplikasi, lokasi, user, dan audit log
@@ -1338,7 +1338,7 @@ export default function PengaturanPage() {
       </div>
 
       {/* Tab nav — horizontal scroll on mobile */}
-      <div className={`${cardBase} p-1.5 flex gap-1 overflow-x-auto`}>
+      <div className={`${cardBase} p-1.5 flex gap-1 overflow-x-auto max-w-full`}>
         {tabs.map(tab => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;

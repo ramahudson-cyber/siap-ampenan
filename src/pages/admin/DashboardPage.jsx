@@ -288,23 +288,28 @@ export default function DashboardPage() {
           </div>
         ) : (
           <div className="overflow-x-auto -mx-2 md:-mx-3">
-            <table className="w-full text-sm min-w-[640px]">
+            <table className="w-full text-sm">
               <thead>
                 <tr className="bg-white/5 border-b border-white/10">
                   <th className="text-left py-3 px-3 font-semibold text-violet-300/60 text-xs uppercase tracking-wider">Nama</th>
-                  <th className="text-left py-3 px-3 font-semibold text-violet-300/60 text-xs uppercase tracking-wider">Departemen</th>
+                  <th className="text-left py-3 px-3 font-semibold text-violet-300/60 text-xs uppercase tracking-wider hidden lg:table-cell">Departemen</th>
                   <th className="text-left py-3 px-3 font-semibold text-violet-300/60 text-xs uppercase tracking-wider">Check In</th>
-                  <th className="text-left py-3 px-3 font-semibold text-violet-300/60 text-xs uppercase tracking-wider">Check Out</th>
+                  <th className="text-left py-3 px-3 font-semibold text-violet-300/60 text-xs uppercase tracking-wider hidden md:table-cell">Check Out</th>
                   <th className="text-left py-3 px-3 font-semibold text-violet-300/60 text-xs uppercase tracking-wider">Status</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5">
                 {recentAttendance.map((a) => (
                   <tr key={a.id} className="hover:bg-white/5 transition-all">
-                    <td className="py-3 px-3 font-medium text-white">{a.profiles?.full_name || "-"}</td>
-                    <td className="py-3 px-3 text-violet-200/60">{a.profiles?.department || "-"}</td>
-                    <td className="py-3 px-3 text-emerald-300 font-mono tabular-nums">{fmtTime(a.clock_in_time)}</td>
-                    <td className="py-3 px-3 text-rose-300 font-mono tabular-nums">{fmtTime(a.clock_out_time)}</td>
+                    <td className="py-3 px-3">
+                      <div>
+                        <p className="font-medium text-white">{a.profiles?.full_name || "-"}</p>
+                        <p className="text-xs text-violet-200/40 lg:hidden mt-0.5">{a.profiles?.department || "-"}</p>
+                      </div>
+                    </td>
+                    <td className="py-3 px-3 text-violet-200/60 hidden lg:table-cell">{a.profiles?.department || "-"}</td>
+                    <td className="py-3 px-3 text-emerald-300 font-mono tabular-nums text-xs md:text-sm">{fmtTime(a.clock_in_time)}</td>
+                    <td className="py-3 px-3 text-rose-300 font-mono tabular-nums text-xs md:text-sm hidden md:table-cell">{fmtTime(a.clock_out_time)}</td>
                     <td className="py-3 px-3"><AttendanceBadge status={a.attendance_status} /></td>
                   </tr>
                 ))}

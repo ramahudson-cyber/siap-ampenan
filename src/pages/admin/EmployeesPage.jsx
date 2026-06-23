@@ -372,11 +372,11 @@ const EmployeesPage = () => {
                 <thead className="bg-white/5 border-b border-white/10">
                   <tr>
                     <th className="text-left px-4 py-3 font-semibold text-violet-300/60 text-xs uppercase tracking-wider">Nama</th>
-                    <th className="text-left px-4 py-3 font-semibold text-violet-300/60 text-xs uppercase tracking-wider">Username</th>
+                    <th className="text-left px-4 py-3 font-semibold text-violet-300/60 text-xs uppercase tracking-wider hidden xl:table-cell">Username</th>
                     <th className="text-left px-4 py-3 font-semibold text-violet-300/60 text-xs uppercase tracking-wider">Role</th>
-                    <th className="text-left px-4 py-3 font-semibold text-violet-300/60 text-xs uppercase tracking-wider">Status</th>
-                    <th className="text-left px-4 py-3 font-semibold text-violet-300/60 text-xs uppercase tracking-wider">Departemen</th>
-                    <th className="text-left px-4 py-3 font-semibold text-violet-300/60 text-xs uppercase tracking-wider">Jabatan</th>
+                    <th className="text-left px-4 py-3 font-semibold text-violet-300/60 text-xs uppercase tracking-wider hidden lg:table-cell">Status</th>
+                    <th className="text-left px-4 py-3 font-semibold text-violet-300/60 text-xs uppercase tracking-wider hidden lg:table-cell">Departemen</th>
+                    <th className="text-left px-4 py-3 font-semibold text-violet-300/60 text-xs uppercase tracking-wider hidden xl:table-cell">Jabatan</th>
                     <th className="text-center px-4 py-3 font-semibold text-violet-300/60 text-xs uppercase tracking-wider">Aksi</th>
                   </tr>
                 </thead>
@@ -388,22 +388,25 @@ const EmployeesPage = () => {
                           <div className={`w-9 h-9 rounded-full bg-gradient-to-br ${avatarGradient(emp.full_name)} flex items-center justify-center text-white text-xs font-bold shadow-lg shrink-0`}>
                             {initials(emp.full_name)}
                           </div>
-                          <span className="font-medium text-white">{emp.full_name || '-'}</span>
+                          <div className="min-w-0">
+                            <p className="font-medium text-white">{emp.full_name || '-'}</p>
+                            <p className="text-xs text-violet-300/40 xl:hidden font-mono mt-0.5">{emp.username || '-'}</p>
+                          </div>
                         </div>
                       </td>
-                      <td className="px-4 py-3 text-violet-200/60 font-mono text-xs">{emp.username || '-'}</td>
+                      <td className="px-4 py-3 text-violet-200/60 font-mono text-xs hidden xl:table-cell">{emp.username || '-'}</td>
                       <td className="px-4 py-3">
                         <span className={`inline-flex px-2.5 py-1 rounded-full text-xs font-medium ring-1 ${roleBadge(emp.role)}`}>
                           {emp.role || '-'}
                         </span>
                       </td>
-                      <td className="px-4 py-3">
+                      <td className="px-4 py-3 hidden lg:table-cell">
                         <span className={`inline-flex px-2.5 py-1 rounded-full text-xs font-medium ${statusBadge(emp.employee_status)}`}>
                           {emp.employee_status || '-'}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-violet-200/60">{emp.department || '-'}</td>
-                      <td className="px-4 py-3 text-violet-200/60">{emp.position || '-'}</td>
+                      <td className="px-4 py-3 text-violet-200/60 hidden lg:table-cell">{emp.department || '-'}</td>
+                      <td className="px-4 py-3 text-violet-200/60 hidden xl:table-cell">{emp.position || '-'}</td>
                       <td className="px-4 py-3">
                         <div className="flex items-center justify-center gap-2">
                           <button onClick={() => handleEdit(emp)}

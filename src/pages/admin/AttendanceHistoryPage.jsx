@@ -233,9 +233,9 @@ export default function AttendanceHistoryPage() {
 
       {/* Filter Bar */}
       <div className={`${cardBase} p-4`}>
-        <div className="flex flex-wrap gap-3">
-          {/* Search */}
-          <div className="relative flex-1 min-w-[200px]">
+        <div className="flex flex-col md:flex-row gap-3">
+          {/* Search - Full width on mobile, flex-1 on desktop */}
+          <div className="relative flex-1">
             <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-violet-300/40" />
             <input
               type="text"
@@ -246,50 +246,49 @@ export default function AttendanceHistoryPage() {
             />
           </div>
 
-          {/* Status filter */}
-          <div className="relative">
-            <Filter size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-violet-300/40 pointer-events-none" />
-            <select
-              value={statusFilter}
-              onChange={e => setStatus(e.target.value)}
-              className={`pl-9 pr-4 py-2 ${inputBase} appearance-none min-w-[140px]`}
+          {/* Filters row - wraps on smaller screens */}
+          <div className="flex flex-wrap items-center gap-3">
+            {/* Status filter */}
+            <div className="relative">
+              <Filter size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-violet-300/40 pointer-events-none" />
+              <select
+                value={statusFilter}
+                onChange={e => setStatus(e.target.value)}
+                className={`pl-9 pr-4 py-2 ${inputBase} appearance-none w-full sm:w-[140px]`}
+              >
+                {STATUS_OPTIONS.map(o => (
+                  <option key={o.value} value={o.value} className="bg-[#1a0a35]">{o.label}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Date filters grouped */}
+            <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+              <span className="text-xs text-violet-300/60 uppercase tracking-wider whitespace-nowrap">Dari</span>
+              <input
+                type="date"
+                value={dateFrom}
+                onChange={e => setDateFrom(e.target.value)}
+                className={`${inputBase} [color-scheme:dark] w-full sm:w-auto`}
+              />
+              <span className="text-xs text-violet-300/60 uppercase tracking-wider whitespace-nowrap">Sampai</span>
+              <input
+                type="date"
+                value={dateTo}
+                onChange={e => setDateTo(e.target.value)}
+                className={`${inputBase} [color-scheme:dark] w-full sm:w-auto`}
+              />
+            </div>
+
+            {/* Refresh */}
+            <button
+              onClick={() => fetchRecords(true)}
+              className="p-2.5 rounded-xl border border-white/10 bg-white/5 text-violet-300/70 hover:text-violet-200 hover:bg-white/10 hover:scale-105 transition-all shrink-0"
+              aria-label="Refresh"
             >
-              {STATUS_OPTIONS.map(o => (
-                <option key={o.value} value={o.value} className="bg-[#1a0a35]">{o.label}</option>
-              ))}
-            </select>
+              <RefreshCw size={15} className={loading ? "animate-spin" : ""} />
+            </button>
           </div>
-
-          {/* Date From */}
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-violet-300/60 uppercase tracking-wider">Dari</span>
-            <input
-              type="date"
-              value={dateFrom}
-              onChange={e => setDateFrom(e.target.value)}
-              className={`${inputBase} [color-scheme:dark]`}
-            />
-          </div>
-
-          {/* Date To */}
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-violet-300/60 uppercase tracking-wider">Sampai</span>
-            <input
-              type="date"
-              value={dateTo}
-              onChange={e => setDateTo(e.target.value)}
-              className={`${inputBase} [color-scheme:dark]`}
-            />
-          </div>
-
-          {/* Refresh */}
-          <button
-            onClick={() => fetchRecords(true)}
-            className="p-2.5 rounded-xl border border-white/10 bg-white/5 text-violet-300/70 hover:text-violet-200 hover:bg-white/10 hover:scale-105 transition-all"
-            aria-label="Refresh"
-          >
-            <RefreshCw size={15} className={loading ? "animate-spin" : ""} />
-          </button>
         </div>
       </div>
 
@@ -329,7 +328,7 @@ export default function AttendanceHistoryPage() {
                 <tbody className="divide-y divide-white/5">
                   {records.map(r => (
                     <tr key={r.id} className="hover:bg-white/5 transition-all">
-                      <td className="py-3 px-4 text-violet-200/70 whitespace-nowrap">
+                      <td className="py-3 px-4 text-violet-200/70">
                         {fmtDate(r.date)}
                       </td>
                       <td className="py-3 px-4">
@@ -337,12 +336,12 @@ export default function AttendanceHistoryPage() {
                           <div className={`w-8 h-8 rounded-full bg-gradient-to-br ${avatarGradient(r.profiles?.full_name)} flex items-center justify-center text-white text-xs font-bold shadow shrink-0`}>
                             {initials(r.profiles?.full_name)}
                           </div>
-                          <span className="font-medium text-white whitespace-nowrap">
+                          <span className="font-medium text-white">
                             {r.profiles?.full_name ?? "–"}
                           </span>
                         </div>
                       </td>
-                      <td className="py-3 px-4 text-violet-200/60 whitespace-nowrap">
+                      <td className="py-3 px-4 text-violet-200/60">
                         {r.profiles?.department ?? "–"}
                       </td>
                       <td className="py-3 px-4 font-mono text-emerald-300 tabular-nums">

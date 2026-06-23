@@ -19,14 +19,14 @@ function AdminLayout() {
       <Sidebar menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
 
       {menuOpen && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-30 md:hidden" onClick={() => setMenuOpen(false)} />
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-30 xl:hidden" onClick={() => setMenuOpen(false)} />
       )}
 
-      <div className="relative z-10 w-full md:ml-[260px] min-h-screen flex flex-col">
+      <div className="relative z-10 w-full xl:w-[calc(100%-260px)] xl:ml-[260px] min-h-screen flex flex-col min-w-0">
         <Header onMenuClick={() => setMenuOpen(true)} />
         {/* Responsive Container: max-width prevents content stretch on large screens */}
-        <main className="flex-1 w-full p-3 sm:p-4 md:p-5 lg:p-6 xl:p-8 pb-24 md:pb-6">
-          <div className="mx-auto max-w-[1600px] w-full">
+        <main className="flex-1 w-full min-w-0 overflow-x-hidden p-3 sm:p-4 md:p-5 lg:p-6 xl:p-8 pb-24 md:pb-6">
+          <div className="mx-auto max-w-[2000px] w-full">
             <Outlet />
           </div>
         </main>
