@@ -1,11 +1,8 @@
 @import "tailwindcss";
 
-/* Tailwind v4: aktifkan dark mode via class .dark di <html> */
 @variant dark (&:where(.dark, .dark *));
 
-html,
-body,
-#root {
+html, body, #root {
   margin: 0;
   padding: 0;
   min-height: 100%;
@@ -18,72 +15,59 @@ html:not(.dark) #root {
   background: #f8fafc;
 }
 
-/* === ANIMATED GRADIENT BACKGROUND === */
+/* === ANIMATIONS === */
 @keyframes gradientShift {
   0%   { background-position: 0% 50%; }
   50%  { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
 }
-
 .animate-gradient-bg {
   background-size: 200% 200%;
   animation: gradientShift 12s ease infinite;
 }
 
-/* === FLOATING ORBS === */
 @keyframes floatOrb {
   0%, 100% { transform: translate(0, 0) scale(1); }
   33%      { transform: translate(30px, -40px) scale(1.05); }
   66%      { transform: translate(-20px, 20px) scale(0.95); }
 }
+.animate-orb { animation: floatOrb 15s infinite ease-in-out; }
+.animate-orb-delay { animation-delay: 5s; }
+.animate-orb-delay-2 { animation-delay: 10s; }
 
-.animate-orb {
-  animation: floatOrb 15s infinite ease-in-out;
-}
-.animate-orb-delay    { animation-delay: 5s; }
-.animate-orb-delay-2  { animation-delay: 10s; }
-
-/* === LOGIN BLOBS === */
 @keyframes blob {
   0%, 100% { transform: translate(0, 0) scale(1); }
   33%      { transform: translate(30px, -50px) scale(1.1); }
   66%      { transform: translate(-20px, 20px) scale(0.9); }
 }
+.animate-blob { animation: blob 10s infinite; }
+.animation-delay-2000 { animation-delay: 2s; }
+.animation-delay-4000 { animation-delay: 4s; }
 
-.animate-blob          { animation: blob 10s infinite; }
-.animation-delay-2000  { animation-delay: 2s; }
-.animation-delay-4000  { animation-delay: 4s; }
-
-/* === CARD FADE-IN === */
 @keyframes fadeInUp {
   from { opacity: 0; transform: translateY(10px); }
   to   { opacity: 1; transform: translateY(0); }
 }
+.animate-fade-in { animation: fadeInUp 0.4s ease-out; }
 
-.animate-fade-in {
-  animation: fadeInUp 0.4s ease-out;
-}
-
-/* === PROFESSIONAL APP BACKGROUND === */
 @keyframes ambientSweep {
   0%, 100% { transform: translate3d(-2%, -1%, 0) scale(1); opacity: 0.55; }
   50%      { transform: translate3d(2%, 1%, 0) scale(1.03); opacity: 0.8; }
 }
-
 @keyframes gridDrift {
   from { background-position: 0 0; }
   to   { background-position: 48px 48px; }
 }
 
-.professional-ambient-bg {
+/* Dark mode backgrounds */
+.dark .professional-ambient-bg {
   background:
     radial-gradient(circle at 20% 20%, rgba(139, 92, 246, 0.14), transparent 32%),
     radial-gradient(circle at 78% 10%, rgba(14, 165, 233, 0.09), transparent 28%),
     radial-gradient(circle at 55% 86%, rgba(168, 85, 247, 0.12), transparent 34%);
   animation: ambientSweep 18s ease-in-out infinite;
 }
-
-.professional-grid-bg {
+.dark .professional-grid-bg {
   background-image:
     linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
     linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
@@ -93,64 +77,138 @@ html:not(.dark) #root {
   opacity: 0.32;
 }
 
-.sidebar-gradient {
+/* Light mode backgrounds - clean & subtle */
+html:not(.dark) .professional-ambient-bg {
+  background:
+    radial-gradient(circle at 20% 20%, rgba(99, 102, 241, 0.04), transparent 36%),
+    radial-gradient(circle at 78% 10%, rgba(14, 165, 233, 0.03), transparent 32%),
+    radial-gradient(circle at 55% 86%, rgba(139, 92, 246, 0.03), transparent 34%);
+  animation: ambientSweep 18s ease-in-out infinite;
+}
+html:not(.dark) .professional-grid-bg {
+  background-image:
+    linear-gradient(rgba(148, 163, 184, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148, 163, 184, 0.08) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(circle at center, rgba(0, 0, 0, 0.32), transparent 72%);
+  opacity: 0.5;
+}
+
+/* Sidebar - dark mode stays purple */
+.dark .sidebar-gradient {
   background:
     radial-gradient(circle at 22% 0%, rgba(168, 85, 247, 0.42), transparent 34%),
     linear-gradient(160deg, rgba(3, 7, 18, 0.98) 0%, rgba(34, 12, 65, 0.96) 48%, rgba(88, 28, 135, 0.94) 100%);
   backdrop-filter: blur(22px);
 }
 
+/* Sidebar - light mode clean white */
 html:not(.dark) .sidebar-gradient {
-  background:
-    radial-gradient(circle at 18% 0%, rgba(192, 132, 252, 0.42), transparent 34%),
-    linear-gradient(160deg, rgba(17, 24, 39, 0.98) 0%, rgba(67, 33, 111, 0.96) 52%, rgba(109, 40, 217, 0.92) 100%);
+  background: #ffffff;
+  backdrop-filter: blur(22px);
 }
 
-html:not(.dark) .professional-ambient-bg {
-  background:
-    radial-gradient(circle at 20% 20%, rgba(124, 58, 237, 0.12), transparent 32%),
-    radial-gradient(circle at 78% 10%, rgba(14, 165, 233, 0.1), transparent 28%),
-    radial-gradient(circle at 55% 86%, rgba(168, 85, 247, 0.1), transparent 34%);
-}
-
-html:not(.dark) .professional-grid-bg {
-  background-image:
-    linear-gradient(rgba(15, 23, 42, 0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(15, 23, 42, 0.05) 1px, transparent 1px);
-  opacity: 0.45;
-}
-
-html:not(.dark) .bg-white\/5,
-html:not(.dark) .bg-white\/\[0\.03\] {
-  background-color: rgba(255, 255, 255, 0.72);
-}
-
-html:not(.dark) .border-white\/10,
-html:not(.dark) .border-white\/5 {
-  border-color: rgba(148, 163, 184, 0.28);
-}
-
-html:not(.dark) .text-white {
-  color: #0f172a;
-}
-
-html:not(.dark) .sidebar-gradient .text-white,
-html:not(.dark) .sidebar-gradient svg {
-  color: #ffffff;
-}
-
+/* Light mode text overrides - clean slate palette */
 html:not(.dark) .text-violet-200\/60,
 html:not(.dark) .text-violet-200\/70,
 html:not(.dark) .text-violet-200\/80,
-html:not(.dark) .text-violet-100\/90 {
-  color: rgba(51, 65, 85, 0.82);
+html:not(.dark) .text-violet-100\/90,
+html:not(.dark) .text-violet-100\/70,
+html:not(.dark) .text-violet-100\/60,
+html:not(.dark) .text-violet-100\/40 {
+  color: #475569;
 }
 
 html:not(.dark) .text-violet-300\/60,
 html:not(.dark) .text-violet-300\/50,
 html:not(.dark) .text-violet-300\/40,
 html:not(.dark) .text-violet-300\/30 {
-  color: rgba(71, 85, 105, 0.68);
+  color: #64748b;
+}
+
+html:not(.dark) .text-red-400\/80 {
+  color: #ef4444;
+}
+
+html:not(.dark) .sidebar-gradient .text-violet-100\/70,
+html:not(.dark) .sidebar-gradient .text-violet-100\/60,
+html:not(.dark) .sidebar-gradient .text-violet-100\/40 {
+  color: #64748b;
+}
+
+html:not(.dark) .sidebar-gradient .text-red-400\/80 {
+  color: #ef4444;
+}
+
+html:not(.dark) .sidebar-gradient .text-red-400\/80:hover {
+  color: #dc2626;
+}
+
+/* Sidebar border overrides for light mode */
+html:not(.dark) .sidebar-gradient .border-white\/10 {
+  border-color: #e2e8f0;
+}
+
+html:not(.dark) .sidebar-gradient .border-white\/15 {
+  border-color: #e2e8f0;
+}
+
+html:not(.dark) .sidebar-gradient .bg-white\/\[0\.03\] {
+  background-color: #f8fafc;
+}
+
+html:not(.dark) .sidebar-gradient .hover\:bg-white\/10:hover {
+  background-color: #f1f5f9;
+}
+
+html:not(.dark) .sidebar-gradient .hover\:bg-red-500\/10:hover {
+  background-color: #fef2f2;
+}
+
+/* Active nav link - light mode */
+html:not(.dark) .sidebar-gradient a.bg-gradient-to-r.from-violet-600.to-purple-700 {
+  background: linear-gradient(to right, #6366f1, #8b5cf6);
+}
+html:not(.dark) .sidebar-gradient a.bg-gradient-to-r.from-violet-600.to-purple-700.text-white {
+  color: #ffffff;
+}
+
+/* Inactive nav link - light mode */
+html:not(.dark) .sidebar-gradient .text-violet-100\/65 {
+  color: #64748b;
+}
+html:not(.dark) .sidebar-gradient .hover\:text-white:hover {
+  color: #0f172a;
+}
+
+html:not(.dark) .sidebar-gradient .text-violet-300 {
+  color: #64748b;
+}
+html:not(.dark) .sidebar-gradient .hover\:text-white:hover.text-violet-300 {
+  color: #0f172a;
+}
+
+html:not(.dark) .shadow-violet-950\/20 {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+}
+
+html:not(.dark) .shadow-violet-900\/30 {
+  box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.15), 0 2px 4px -2px rgba(99, 102, 241, 0.1);
+}
+
+html:not(.dark) .sidebar-gradient h1 {
+  color: #0f172a;
+}
+
+/* Light mode card adjustments */
+html:not(.dark) .bg-white\/5,
+html:not(.dark) .bg-white\/\[0\.03\] {
+  background-color: #ffffff;
+}
+
+html:not(.dark) .border-white\/10,
+html:not(.dark) .border-white\/5 {
+  border-color: #e2e8f0;
 }
 
 @media (prefers-reduced-motion: reduce) {
