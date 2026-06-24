@@ -52,15 +52,16 @@ function Header() {
         {/* LEFT: Date & Time */}
         <div className="flex items-center min-w-0 flex-1">
           <div className="flex flex-col min-w-0">
-            <span className="text-xs text-slate-500 dark:text-slate-400 mb-0.5">Hai, {userName}</span>
-            <h1 className="text-sm sm:text-base md:text-lg font-semibold text-slate-800 dark:text-slate-100 truncate tracking-tight">
-              {todayLabel}
+            {/* Greeting - Bigger */}
+            <h1 className="text-base sm:text-lg md:text-xl font-bold text-slate-800 dark:text-slate-100 truncate tracking-tight">
+              Hai, {userName}
             </h1>
-            <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 -mt-0.5">
+            {/* Date/Time - Below */}
+            <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+              <span>{todayLabel}</span>
+              <span className="text-slate-300 dark:text-slate-600">·</span>
               <Clock size={12} />
               <span className="font-mono tabular-nums">{timeStr} WITA</span>
-              <span className="text-slate-300 dark:text-slate-600">·</span>
-              <span className="truncate max-w-[120px] sm:max-w-none">{title}</span>
             </div>
           </div>
         </div>
