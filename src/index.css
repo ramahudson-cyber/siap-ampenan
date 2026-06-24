@@ -16,127 +16,106 @@ html:not(.dark) #root {
 }
 
 /* === ANIMATIONS === */
-@keyframes gradientShift {
-  0%   { background-position: 0% 50%; }
-  50%  { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-.animate-gradient-bg {
-  background-size: 200% 200%;
-  animation: gradientShift 12s ease infinite;
-}
+@keyframes gradientShift { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
+.animate-gradient-bg { background-size:200% 200%; animation:gradientShift 12s ease infinite }
+@keyframes floatOrb { 0%,100%{transform:translate(0,0) scale(1)} 33%{transform:translate(30px,-40px) scale(1.05)} 66%{transform:translate(-20px,20px) scale(0.95)} }
+.animate-orb { animation:floatOrb 15s infinite ease-in-out }
+.animate-orb-delay { animation-delay:5s }
+@keyframes blob { 0%,100%{transform:translate(0,0) scale(1)} 33%{transform:translate(30px,-50px) scale(1.1)} 66%{transform:translate(-20px,20px) scale(0.9)} }
+.animate-blob { animation:blob 10s infinite }
+.animation-delay-2000 { animation-delay:2s }
+.animation-delay-4000 { animation-delay:4s }
+@keyframes fadeInUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+.animate-fade-in { animation:fadeInUp 0.4s ease-out }
+@keyframes ambientSweep { 0%,100%{transform:translate3d(-2%,-1%,0) scale(1);opacity:0.45} 50%{transform:translate3d(2%,1%,0) scale(1.03);opacity:0.7} }
+@keyframes gridDrift { from{background-position:0 0} to{background-position:48px 48px} }
 
-@keyframes floatOrb {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  33%      { transform: translate(30px, -40px) scale(1.05); }
-  66%      { transform: translate(-20px, 20px) scale(0.95); }
-}
-.animate-orb { animation: floatOrb 15s infinite ease-in-out; }
-.animate-orb-delay { animation-delay: 5s; }
-.animate-orb-delay-2 { animation-delay: 10s; }
-
-@keyframes blob {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  33%      { transform: translate(30px, -50px) scale(1.1); }
-  66%      { transform: translate(-20px, 20px) scale(0.9); }
-}
-.animate-blob { animation: blob 10s infinite; }
-.animation-delay-2000 { animation-delay: 2s; }
-.animation-delay-4000 { animation-delay: 4s; }
-
-@keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(10px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-.animate-fade-in { animation: fadeInUp 0.4s ease-out; }
-
-@keyframes ambientSweep {
-  0%, 100% { transform: translate3d(-2%, -1%, 0) scale(1); opacity: 0.45; }
-  50%      { transform: translate3d(2%, 1%, 0) scale(1.03); opacity: 0.7; }
-}
-@keyframes gridDrift {
-  from { background-position: 0 0; }
-  to   { background-position: 48px 48px; }
-}
-
-/* === DARK MODE BACKGROUNDS === */
 .dark .professional-ambient-bg {
-  background:
-    radial-gradient(circle at 20% 20%, rgba(139, 92, 246, 0.12), transparent 32%),
-    radial-gradient(circle at 78% 10%, rgba(14, 165, 233, 0.08), transparent 28%),
-    radial-gradient(circle at 55% 86%, rgba(168, 85, 247, 0.1), transparent 34%);
+  background: radial-gradient(circle at 20% 20%,rgba(139,92,246,0.12),transparent 32%),radial-gradient(circle at 78% 10%,rgba(14,165,233,0.08),transparent 28%),radial-gradient(circle at 55% 86%,rgba(168,85,247,0.1),transparent 34%);
   animation: ambientSweep 18s ease-in-out infinite;
 }
 .dark .professional-grid-bg {
-  background-image:
-    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-image: linear-gradient(rgba(255,255,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.03) 1px,transparent 1px);
   background-size: 48px 48px;
-  mask-image: radial-gradient(circle at center, rgba(0, 0, 0, 0.55), transparent 72%);
+  mask-image: radial-gradient(circle at center,rgba(0,0,0,0.55),transparent 72%);
   animation: gridDrift 28s linear infinite;
   opacity: 0.3;
 }
 
-/* === LIGHT MODE BACKGROUNDS - clean & minimal === */
 html:not(.dark) .professional-ambient-bg {
-  background:
-    radial-gradient(circle at 20% 20%, rgba(99, 102, 241, 0.035), transparent 36%),
-    radial-gradient(circle at 78% 10%, rgba(14, 165, 233, 0.025), transparent 32%),
-    radial-gradient(circle at 55% 86%, rgba(139, 92, 246, 0.025), transparent 34%);
+  background: radial-gradient(circle at 20% 20%,rgba(99,102,241,0.03),transparent 36%),radial-gradient(circle at 78% 10%,rgba(14,165,233,0.02),transparent 32%),radial-gradient(circle at 55% 86%,rgba(139,92,246,0.02),transparent 34%);
   animation: ambientSweep 18s ease-in-out infinite;
 }
 html:not(.dark) .professional-grid-bg {
-  background-image:
-    linear-gradient(rgba(148, 163, 184, 0.07) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(148, 163, 184, 0.07) 1px, transparent 1px);
+  background-image: linear-gradient(rgba(148,163,184,0.06) 1px,transparent 1px),linear-gradient(90deg,rgba(148,163,184,0.06) 1px,transparent 1px);
   background-size: 48px 48px;
-  mask-image: radial-gradient(circle at center, rgba(0, 0, 0, 0.25), transparent 72%);
+  mask-image: radial-gradient(circle at center,rgba(0,0,0,0.2),transparent 72%);
   opacity: 0.4;
 }
 
 /* === SIDEBAR === */
 .dark .sidebar-gradient {
-  background:
-    radial-gradient(circle at 22% 0%, rgba(168, 85, 247, 0.42), transparent 34%),
-    linear-gradient(160deg, rgba(3, 7, 18, 0.98) 0%, rgba(34, 12, 65, 0.96) 48%, rgba(88, 28, 135, 0.94) 100%);
+  background: radial-gradient(circle at 22% 0%,rgba(168,85,247,0.42),transparent 34%),linear-gradient(160deg,rgba(3,7,18,0.98) 0%,rgba(34,12,65,0.96) 48%,rgba(88,28,135,0.94) 100%);
   backdrop-filter: blur(22px);
 }
-
 html:not(.dark) .sidebar-gradient {
   background: #ffffff;
   border-right-color: #e2e8f0;
 }
+html:not(.dark) .sidebar-gradient h1 { color: #0f172a; }
 
-/* === LIGHT MODE CARD SYSTEM === */
+/* === LIGHT MODE CORE - Cards & Surfaces === */
 html:not(.dark) .bg-white\/5,
 html:not(.dark) .bg-white\/\[0\.03\],
 html:not(.dark) .bg-white\/\[0\.04\],
-html:not(.dark) .bg-white\/\[0\.05\] {
-  background-color: #ffffff;
-}
+html:not(.dark) .bg-white\/\[0\.05\] { background-color: #ffffff; }
 
 html:not(.dark) .border-white\/10,
 html:not(.dark) .border-white\/5,
 html:not(.dark) .border-white\/\[0\.06\],
 html:not(.dark) .border-white\/\[0\.08\],
-html:not(.dark) .border-white\/\[0\.15\] {
-  border-color: #e2e8f0;
-}
+html:not(.dark) .border-white\/\[0\.15\] { border-color: #e2e8f0; }
 
-html:not(.dark) .bg-slate-100\/80 {
-  background-color: #f1f5f9;
-}
-
+html:not(.dark) .bg-slate-100\/80 { background-color: #f1f5f9; }
 html:not(.dark) .hover\:bg-white\/10:hover,
-html:not(.dark) .hover\:bg-white\/\[0\.06\]:hover {
-  background-color: #f1f5f9;
-}
+html:not(.dark) .hover\:bg-white\/\[0\.06\]:hover { background-color: #f1f5f9; }
+html:not(.dark) .hover\:bg-red-500\/10:hover { background-color: #fef2f2; }
+html:not(.dark) .hover\:bg-rose-50:hover { background-color: #fff1f2; }
 
-html:not(.dark) .hover\:bg-red-500\/10:hover {
-  background-color: #fef2f2;
-}
+/* Override for tag/status label backgrounds in light mode */
+html:not(.dark) .bg-violet-500\/10 { background-color: #eef2ff; }
+html:not(.dark) .bg-violet-500\/15 { background-color: #eef2ff; }
+html:not(.dark) .bg-emerald-500\/15 { background-color: #ecfdf5; }
+html:not(.dark) .bg-amber-500\/15 { background-color: #fffbeb; }
+html:not(.dark) .bg-orange-500\/15 { background-color: #fff7ed; }
+html:not(.dark) .bg-sky-500\/15 { background-color: #f0f9ff; }
+html:not(.dark) .bg-rose-500\/15 { background-color: #fef2f2; }
+html:not(.dark) .bg-purple-500\/15 { background-color: #f5f3ff; }
 
-/* === LIGHT MODE TEXT COLORS === */
+/* Tag/status text light mode */
+html:not(.dark) .text-emerald-300 { color: #059669; }
+html:not(.dark) .text-amber-300 { color: #d97706; }
+html:not(.dark) .text-orange-300 { color: #ea580c; }
+html:not(.dark) .text-sky-300 { color: #0284c7; }
+html:not(.dark) .text-rose-300 { color: #dc2626; }
+html:not(.dark) .text-purple-300 { color: #7c3aed; }
+html:not(.dark) .text-violet-300 { color: #6d28d9; }
+
+/* Tag/status ring light mode */
+html:not(.dark) .ring-emerald-500\/30 { --tw-ring-color: #a7f3d0; }
+html:not(.dark) .ring-amber-500\/30 { --tw-ring-color: #fde68a; }
+html:not(.dark) .ring-orange-500\/30 { --tw-ring-color: #fed7aa; }
+html:not(.dark) .ring-sky-500\/30 { --tw-ring-color: #bae6fd; }
+html:not(.dark) .ring-rose-500\/30 { --tw-ring-color: #fecaca; }
+html:not(.dark) .ring-purple-500\/30 { --tw-ring-color: #ddd6fe; }
+
+/* Primary text */
+html:not(.dark) .text-white { color: #0f172a; }
+html:not(.dark) h1.text-white,
+html:not(.dark) h2.text-white,
+html:not(.dark) h3.text-white { color: #0f172a; }
+
+/* Secondary/violet tinted text */
 html:not(.dark) .text-violet-200\/60,
 html:not(.dark) .text-violet-200\/70,
 html:not(.dark) .text-violet-200\/80,
@@ -144,114 +123,80 @@ html:not(.dark) .text-violet-100\/90,
 html:not(.dark) .text-violet-100\/70,
 html:not(.dark) .text-violet-100\/60,
 html:not(.dark) .text-violet-100\/40,
-html:not(.dark) .text-violet-200 {
-  color: #475569;
-}
+html:not(.dark) .text-violet-200 { color: #475569; }
 
 html:not(.dark) .text-violet-300\/60,
 html:not(.dark) .text-violet-300\/50,
 html:not(.dark) .text-violet-300\/40,
 html:not(.dark) .text-violet-300\/30,
-html:not(.dark) .text-violet-300 {
-  color: #64748b;
-}
+html:not(.dark) .text-violet-300\/70 { color: #64748b; }
 
-html:not(.dark) .text-violet-300\/70 {
-  color: #475569;
-}
+html:not(.dark) .text-violet-200\/50,
+html:not(.dark) .text-violet-200\/40 { color: #64748b; }
 
-/* Sidebar specific text */
+/* Remove purple glow buttons in light mode */
+html:not(.dark) .text-violet-400 { color: #6d28d9; }
+html:not(.dark) .text-violet-500 { color: #6d28d9; }
+
+html:not(.dark) .text-emerald-400\/70 { color: #059669; }
+html:not(.dark) .text-emerald-300 { color: #059669; }
+html:not(.dark) .text-rose-300 { color: #dc2626; }
+html:not(.dark) .text-sky-300 { color: #0284c7; }
+
+/* Sidebar specific */
 html:not(.dark) .sidebar-gradient .text-violet-100\/70,
 html:not(.dark) .sidebar-gradient .text-violet-100\/60,
-html:not(.dark) .sidebar-gradient .text-violet-100\/40 {
-  color: #64748b;
-}
-
-html:not(.dark) .sidebar-gradient .text-violet-100\/65 {
-  color: #64748b;
-}
-
-html:not(.dark) .sidebar-gradient .hover\:text-white:hover {
-  color: #0f172a;
-}
-
-html:not(.dark) .sidebar-gradient .text-red-400\/80 {
-  color: #ef4444;
-}
-
-html:not(.dark) .sidebar-gradient .text-violet-300 {
-  color: #64748b;
-}
-html:not(.dark) .sidebar-gradient .hover\:text-white:hover.text-violet-300 {
-  color: #0f172a;
-}
-
-html:not(.dark) .sidebar-gradient h1 {
-  color: #0f172a;
-}
-
+html:not(.dark) .sidebar-gradient .text-violet-100\/40 { color: #64748b; }
+html:not(.dark) .sidebar-gradient .text-violet-100\/65 { color: #64748b; }
+html:not(.dark) .sidebar-gradient .hover\:text-white:hover { color: #0f172a; }
+html:not(.dark) .sidebar-gradient .text-red-400\/80 { color: #ef4444; }
+html:not(.dark) .sidebar-gradient .text-violet-300 { color: #64748b; }
+html:not(.dark) .sidebar-gradient .hover\:text-white:hover.text-violet-300 { color: #0f172a; }
 html:not(.dark) .sidebar-gradient .border-white\/10,
-html:not(.dark) .sidebar-gradient .border-white\/15 {
-  border-color: #e2e8f0;
-}
+html:not(.dark) .sidebar-gradient .border-white\/15 { border-color: #e2e8f0; }
+html:not(.dark) .sidebar-gradient .bg-white\/\[0\.03\] { background-color: #f8fafc; }
 
-html:not(.dark) .sidebar-gradient .bg-white\/\[0\.03\] {
-  background-color: #f8fafc;
-}
+/* Active nav link */
+html:not(.dark) a.bg-gradient-to-r.from-violet-600.to-purple-700.text-white { color: #ffffff; }
 
-/* Active nav link - light mode */
-html:not(.dark) a.bg-gradient-to-r.from-violet-600.to-purple-700 {
+html:not(.dark) .sidebar-gradient a.bg-gradient-to-r.from-violet-600.to-purple-700 {
   background: linear-gradient(to right, #6366f1, #8b5cf6);
 }
-html:not(.dark) a.bg-gradient-to-r.from-violet-600.to-purple-700.text-white {
-  color: #ffffff;
+
+/* Hover states for sidebar links */
+html:not(.dark) .sidebar-gradient a.hover\:bg-white\/10:hover {
+  background-color: #f1f5f9;
 }
 
 /* Shadows */
 html:not(.dark) .shadow-violet-950\/20 {
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+}
+html:not(.dark) .shadow-violet-900\/30,
+html:not(.dark) .shadow-violet-900\/20 {
+  box-shadow: 0 4px 6px -1px rgba(99,102,241,0.1), 0 2px 4px -2px rgba(99,102,241,0.06);
 }
 
-html:not(.dark) .shadow-violet-900\/30 {
-  box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.15), 0 2px 4px -2px rgba(99, 102, 241, 0.1);
+/* Fix ring-white in light mode */
+html:not(.dark) .ring-white { --tw-ring-color: #ffffff; }
+
+/* Gradient buttons — ensure text stays white */
+html:not(.dark) button.bg-gradient-to-r.from-violet-600.to-purple-700,
+html:not(.dark) .bg-gradient-to-r.from-violet-600.to-purple-700 {
+  color: #ffffff !important;
 }
 
-/* Ring overrides for light mode */
-html:not(.dark) .ring-white {
-  --tw-ring-color: #ffffff;
-}
-
-/* === DROP ZONE LIGHT MODE === */
-html:not(.dark) .border-violet-500\/20 {
-  border-color: #c7d2fe;
-}
-
-html:not(.dark) .hover\:border-violet-500\/40:hover {
-  border-color: #a5b4fc;
-}
-
-/* Input base light mode */
-html:not(.dark) input,
-html:not(.dark) select,
-html:not(.dark) textarea {
-  color-scheme: light;
-}
+/* Date inputs */
+html:not(.dark) input[type="date"] { color-scheme: light; }
 
 @media (prefers-reduced-motion: reduce) {
-  .professional-ambient-bg,
-  .professional-grid-bg {
-    animation: none;
-  }
+  .professional-ambient-bg, .professional-grid-bg { animation: none }
 }
 
-/* === CUSTOM SCROLLBAR === */
-::-webkit-scrollbar { width: 4px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(139, 92, 246, 0.3); border-radius: 4px; }
+::-webkit-scrollbar { width: 4px }
+::-webkit-scrollbar-track { background: transparent }
+::-webkit-scrollbar-thumb { background: rgba(139,92,246,0.3); border-radius: 4px }
 
-/* === SAFARI MOBILE 100vh FIX === */
 @supports (height: 100dvh) {
-  html, body, #root {
-    height: 100dvh;
-  }
+  html, body, #root { height: 100dvh }
 }
