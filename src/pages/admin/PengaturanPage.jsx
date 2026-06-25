@@ -17,21 +17,21 @@ const cardBase =
   "bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl transition-all";
 
 const inputBase =
-  "w-full px-3 py-2.5 text-sm rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-violet-300/30 focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500/50 transition-all";
+  "w-full px-3 py-2.5 text-sm rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500/50 transition-all";
 
 const labelBase =
-  "block text-xs font-medium text-violet-300/70 mb-1.5 uppercase tracking-wider";
+  "block text-xs font-medium text-violet-100/70 mb-1.5 uppercase tracking-wider";
 
 const sectionTitle =
   "text-xl md:text-2xl font-bold text-white tracking-tight";
 
-const sectionSub = "text-sm text-violet-300/60 mt-1";
+const sectionSub = "text-sm text-slate-200 mt-1";
 
 const btnPrimary =
   "flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-violet-600 to-purple-700 text-white rounded-xl text-sm font-medium hover:shadow-lg hover:shadow-violet-900/30 hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed";
 
 const btnGhost =
-  "p-2 rounded-xl border border-white/10 bg-white/5 text-violet-300/70 hover:text-violet-200 hover:bg-white/10 hover:scale-105 transition-all";
+  "p-2 rounded-xl border border-white/10 bg-white/5 text-violet-100/70 hover:text-violet-200 hover:bg-white/10 hover:scale-105 transition-all";
 
 const avatarGradient = (name = "") => {
   const grads = [
@@ -270,7 +270,7 @@ function TabProfilPuskesmas() {
               <h3 className="text-lg font-bold text-white">
                 {editingId ? "Edit Lokasi" : "Tambah Lokasi Baru"}
               </h3>
-              <button onClick={resetForm} className="p-1.5 rounded-lg text-violet-300/60 hover:text-white hover:bg-white/5 transition-all">
+              <button onClick={resetForm} className="p-1.5 rounded-lg text-slate-200 hover:text-white hover:bg-white/5 transition-all">
                 <X size={20} />
               </button>
             </div>
@@ -376,11 +376,11 @@ function TabProfilPuskesmas() {
         {locations.length === 0 ? (
           <div className="text-center py-12 flex flex-col items-center gap-3">
             <div className="p-4 rounded-2xl bg-white/5">
-              <MapPin size={32} className="text-violet-300/40" />
+              <MapPin size={32} className="text-slate-400" />
             </div>
             <div>
               <p className="text-violet-200/60 font-medium">Belum ada lokasi</p>
-              <p className="text-violet-300/40 text-xs mt-1">Klik "Tambah Lokasi" untuk menambahkan</p>
+              <p className="text-slate-400 text-xs mt-1">Klik "Tambah Lokasi" untuk menambahkan</p>
             </div>
           </div>
         ) : (
@@ -390,7 +390,7 @@ function TabProfilPuskesmas() {
                 <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
                   <div className="flex items-start gap-3 flex-1 min-w-0">
                     <div className={`p-2.5 rounded-xl shrink-0 ${loc.is_active ? "bg-emerald-500/15" : "bg-white/5"}`}>
-                      <MapPin size={18} className={loc.is_active ? "text-emerald-300" : "text-violet-300/50"} />
+                      <MapPin size={18} className={loc.is_active ? "text-emerald-300" : "text-slate-300"} />
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1 flex-wrap">
@@ -402,7 +402,7 @@ function TabProfilPuskesmas() {
                         )}
                       </div>
                       {loc.address && <p className="text-sm text-violet-200/60 mb-1 break-words">{loc.address}</p>}
-                      <div className="flex flex-wrap gap-3 text-xs text-violet-300/50 mt-1">
+                      <div className="flex flex-wrap gap-3 text-xs text-slate-300 mt-1">
                         <span className="font-mono break-all">📍 {loc.latitude}, {loc.longitude}</span>
                         <span>📏 {loc.radius_meter}m</span>
                       </div>
@@ -571,7 +571,7 @@ function TabJamKerja() {
           <div key={cat} className={`${cardBase} p-5 md:p-6`}>
             <div className="flex items-center gap-2 mb-4">
               <div className="p-2 rounded-lg bg-violet-500/15">
-                <CatIcon size={16} className="text-violet-300" />
+                <CatIcon size={16} className="text-violet-100" />
               </div>
               <h3 className="text-lg font-semibold text-white">
                 {categoryLabels[cat]}
@@ -582,11 +582,11 @@ function TabJamKerja() {
                 const Icon = item.icon;
                 return (
                   <div key={item.key} className="p-3 rounded-xl bg-white/5 border border-white/5">
-                    <label className="flex items-center gap-2 text-xs font-medium text-violet-300/70 mb-1 uppercase tracking-wider">
+                    <label className="flex items-center gap-2 text-xs font-medium text-violet-100/70 mb-1 uppercase tracking-wider">
                       <Icon size={12} className="text-violet-400" />
                       {item.label}
                     </label>
-                    <p className="text-xs text-violet-300/40 mb-2">{item.desc}</p>
+                    <p className="text-xs text-slate-400 mb-2">{item.desc}</p>
                     <input
                       type={item.type}
                       value={settings[item.key] || ""}
@@ -745,7 +745,7 @@ function TabManajemenUser() {
       kepala_unit: "bg-sky-500/15 text-sky-300 ring-sky-500/30",
       pegawai: "bg-emerald-500/15 text-emerald-300 ring-emerald-500/30",
     };
-    return map[role] || "bg-white/5 text-violet-300/60 ring-white/10";
+    return map[role] || "bg-white/5 text-slate-200 ring-white/10";
   };
 
   const filtered = users.filter(u =>
@@ -772,7 +772,7 @@ function TabManajemenUser() {
       </div>
 
       <div className="relative">
-        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-violet-300/40" />
+        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
         <input
           type="text"
           placeholder="Cari nama, username, atau email..."
@@ -787,11 +787,11 @@ function TabManajemenUser() {
           <table className="w-full text-sm">
             <thead className="bg-white/5 border-b border-white/10">
               <tr>
-                <th className="text-left px-4 py-3 font-semibold text-violet-300/60 text-xs uppercase tracking-wider">User</th>
-                <th className="text-left px-4 py-3 font-semibold text-violet-300/60 text-xs uppercase tracking-wider hidden md:table-cell">Username</th>
-                <th className="text-left px-4 py-3 font-semibold text-violet-300/60 text-xs uppercase tracking-wider hidden lg:table-cell">Email</th>
-                <th className="text-left px-4 py-3 font-semibold text-violet-300/60 text-xs uppercase tracking-wider">Role</th>
-                <th className="text-center px-4 py-3 font-semibold text-violet-300/60 text-xs uppercase tracking-wider">Aksi</th>
+                <th className="text-left px-4 py-3 font-semibold text-slate-200 text-xs uppercase tracking-wider">User</th>
+                <th className="text-left px-4 py-3 font-semibold text-slate-200 text-xs uppercase tracking-wider hidden md:table-cell">Username</th>
+                <th className="text-left px-4 py-3 font-semibold text-slate-200 text-xs uppercase tracking-wider hidden lg:table-cell">Email</th>
+                <th className="text-left px-4 py-3 font-semibold text-slate-200 text-xs uppercase tracking-wider">Role</th>
+                <th className="text-center px-4 py-3 font-semibold text-slate-200 text-xs uppercase tracking-wider">Aksi</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
@@ -808,7 +808,7 @@ function TabManajemenUser() {
                         </button>
                         <div className="min-w-0">
                           <p className="font-medium text-white truncate">{u.full_name || "-"}</p>
-                          <p className="text-xs text-violet-300/40 md:hidden truncate">{u.username || "-"} • {u.email || "-"}</p>
+                          <p className="text-xs text-slate-400 md:hidden truncate">{u.username || "-"} • {u.email || "-"}</p>
                         </div>
                       </div>
                     </td>
@@ -846,7 +846,7 @@ function TabManajemenUser() {
                         <div className="space-y-2">
                           <div className="flex items-center justify-between mb-3 gap-2 flex-wrap">
                             <h4 className="text-sm font-semibold text-white flex items-center gap-2">
-                              <Smartphone size={14} className="text-violet-300" />
+                              <Smartphone size={14} className="text-violet-100" />
                               Device Terdaftar untuk {u.full_name}
                             </h4>
                             <button
@@ -860,12 +860,12 @@ function TabManajemenUser() {
                           </div>
 
                           {!userDevices[u.id] ? (
-                            <div className="text-center py-4 text-violet-300/50 text-sm flex flex-col items-center gap-2">
+                            <div className="text-center py-4 text-slate-300 text-sm flex flex-col items-center gap-2">
                               <RefreshCw size={20} className="animate-spin" />
                               Memuat device...
                             </div>
                           ) : userDevices[u.id].length === 0 ? (
-                            <div className="text-center py-4 text-violet-300/40 text-sm flex flex-col items-center gap-2">
+                            <div className="text-center py-4 text-slate-400 text-sm flex flex-col items-center gap-2">
                               <Smartphone size={28} className="opacity-40" />
                               Belum ada device terdaftar. User belum pernah login.
                             </div>
@@ -882,8 +882,8 @@ function TabManajemenUser() {
                                     </div>
                                     <div className="min-w-0">
                                       <p className="text-sm font-medium text-white truncate">{device.device_name || "Unknown Device"}</p>
-                                      <p className="text-xs text-violet-300/50 font-mono mt-0.5 truncate">ID: {device.visitor_id?.substring(0, 20)}…</p>
-                                      <p className="text-xs text-violet-300/40 mt-0.5">Login terakhir: {new Date(device.last_login_at).toLocaleString("id-ID")}</p>
+                                      <p className="text-xs text-slate-300 font-mono mt-0.5 truncate">ID: {device.visitor_id?.substring(0, 20)}…</p>
+                                      <p className="text-xs text-slate-400 mt-0.5">Login terakhir: {new Date(device.last_login_at).toLocaleString("id-ID")}</p>
                                     </div>
                                   </div>
                                   <div className="flex items-center gap-2 shrink-0">
@@ -917,7 +917,7 @@ function TabManajemenUser() {
         {filtered.length === 0 && (
           <div className="text-center py-12 flex flex-col items-center gap-3">
             <div className="p-4 rounded-2xl bg-white/5">
-              <Users size={32} className="text-violet-300/40" />
+              <Users size={32} className="text-slate-400" />
             </div>
             <p className="text-violet-200/60">Tidak ada user ditemukan</p>
           </div>
@@ -1042,7 +1042,7 @@ function TabApprovalDevice() {
                         <Clock size={10} /> PENDING
                       </span>
                     </div>
-                    <p className="text-xs text-violet-300/50 mb-2 flex items-center gap-1">
+                    <p className="text-xs text-slate-300 mb-2 flex items-center gap-1">
                       <Mail size={11} /> {req.user_email}
                     </p>
                     <div className="space-y-1 text-xs">
@@ -1052,10 +1052,10 @@ function TabApprovalDevice() {
                       <p className="text-violet-200/70">
                         <strong className="text-violet-100">OS:</strong> {req.device_os || "Unknown"}
                       </p>
-                      <p className="text-violet-300/50 font-mono break-all">
+                      <p className="text-slate-300 font-mono break-all">
                         <strong className="text-violet-200/70">ID:</strong> {req.visitor_id?.substring(0, 30)}…
                       </p>
-                      <p className="text-violet-300/50 mt-2 flex items-center gap-1">
+                      <p className="text-slate-300 mt-2 flex items-center gap-1">
                         <ClockIcon size={11} />
                         Request: {new Date(req.created_at).toLocaleString("id-ID")}
                       </p>
@@ -1114,7 +1114,7 @@ function RejectReasonModal({ request, onClose, onConfirm, processing }) {
       <div className="bg-[#1a0a35] border border-white/10 rounded-2xl shadow-2xl shadow-violet-900/40 w-full max-w-md">
         <div className="flex items-center justify-between p-5 md:p-6 border-b border-white/10">
           <h3 className="text-lg font-bold text-white">Tolak Request Device</h3>
-          <button onClick={onClose} className="p-1.5 rounded-lg text-violet-300/60 hover:text-white hover:bg-white/5 transition-all"><X size={20} /></button>
+          <button onClick={onClose} className="p-1.5 rounded-lg text-slate-200 hover:text-white hover:bg-white/5 transition-all"><X size={20} /></button>
         </div>
 
         <div className="p-5 md:p-6 space-y-3">
@@ -1213,7 +1213,7 @@ function TabAuditLog() {
     };
 
     const prefix = action?.split("_")[0];
-    return map[action] || map[prefix] || "bg-white/5 text-violet-300/60 ring-white/10";
+    return map[action] || map[prefix] || "bg-white/5 text-slate-200 ring-white/10";
   };
 
   const filtered = logs.filter(l =>
@@ -1249,7 +1249,7 @@ function TabAuditLog() {
       </div>
 
       <div className="relative">
-        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-violet-300/40" />
+        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
         <input
           type="text"
           placeholder="Cari berdasarkan aksi, email, atau deskripsi..."
@@ -1263,7 +1263,7 @@ function TabAuditLog() {
         {filtered.length === 0 ? (
           <div className="text-center py-12 flex flex-col items-center gap-3">
             <div className="p-4 rounded-2xl bg-white/5">
-              <Activity size={32} className="text-violet-300/40" />
+              <Activity size={32} className="text-slate-400" />
             </div>
             <p className="text-violet-200/60">Belum ada aktivitas tercatat</p>
           </div>
@@ -1272,14 +1272,14 @@ function TabAuditLog() {
             {filtered.map(log => (
               <div key={log.id} className="flex items-start gap-3 p-3 rounded-xl hover:bg-white/5 transition-all">
                 <div className="p-2 rounded-lg bg-white/5 shrink-0">
-                  <Activity size={14} className="text-violet-300/60" />
+                  <Activity size={14} className="text-slate-200" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap mb-1">
                     <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ring-1 ${actionBadge(log.action)}`}>
                       {log.action}
                     </span>
-                    <span className="text-xs text-violet-300/40">
+                    <span className="text-xs text-slate-400">
                       {new Date(log.created_at).toLocaleString("id-ID", {
                         day: "numeric", month: "short", year: "numeric",
                         hour: "2-digit", minute: "2-digit"
@@ -1288,7 +1288,7 @@ function TabAuditLog() {
                   </div>
                   <p className="text-sm text-violet-100/90">{log.description || "-"}</p>
                   {log.user_email && (
-                    <p className="text-xs text-violet-300/40 mt-0.5">oleh: {log.user_email}</p>
+                    <p className="text-xs text-slate-400 mt-0.5">oleh: {log.user_email}</p>
                   )}
                 </div>
               </div>
@@ -1315,7 +1315,7 @@ export default function PengaturanPage() {
           <Shield size={48} className="text-rose-300" />
         </div>
         <h2 className="text-2xl font-bold text-white mb-2">Akses Ditolak</h2>
-        <p className="text-violet-300/60">Halaman ini hanya untuk Super Admin.</p>
+        <p className="text-slate-200">Halaman ini hanya untuk Super Admin.</p>
       </div>
     );
   }
@@ -1332,7 +1332,7 @@ export default function PengaturanPage() {
     <div className="space-y-6 pb-20 animate-fade-in min-w-0">
       <div className="min-w-0">
         <h1 className="text-2xl md:text-3xl font-bold text-white tracking-tight">Pengaturan Sistem</h1>
-        <p className="text-violet-300/60 mt-1.5 text-sm">
+        <p className="text-slate-200 mt-1.5 text-sm">
           Kelola konfigurasi aplikasi, lokasi, user, dan audit log
         </p>
       </div>
@@ -1350,7 +1350,7 @@ export default function PengaturanPage() {
                 className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all whitespace-nowrap ${
                   isActive
                     ? "bg-gradient-to-r from-violet-600 to-purple-700 text-white shadow-lg shadow-violet-900/30"
-                    : "bg-white/5 text-violet-300/70 hover:bg-white/10"
+                    : "bg-white/5 text-violet-100/70 hover:bg-white/10"
                 }`}
               >
                 <Icon size={16} />
@@ -1371,3 +1371,4 @@ export default function PengaturanPage() {
     </div>
   );
 }
+

@@ -10,10 +10,10 @@ const cardBase =
   'bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl transition-all';
 
 const inputBase =
-  'w-full px-3 py-2.5 text-sm rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-violet-300/30 focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500/50 transition-all';
+  'w-full px-3 py-2.5 text-sm rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500/50 transition-all';
 
 const labelBase =
-  'block text-xs font-medium text-violet-300/70 mb-1.5 uppercase tracking-wider';
+  'block text-xs font-medium text-violet-100/70 mb-1.5 uppercase tracking-wider';
 
 const EmployeesPage = () => {
   const [employees, setEmployees] = useState([]);
@@ -143,7 +143,7 @@ const EmployeesPage = () => {
       kepala_unit: 'bg-sky-500/15 text-sky-300 ring-sky-500/30',
       pegawai: 'bg-emerald-500/15 text-emerald-300 ring-emerald-500/30',
     };
-    return map[role] || 'bg-white/5 text-violet-300/60 ring-white/10';
+    return map[role] || 'bg-white/5 text-slate-200 ring-white/10';
   };
 
   const statusBadge = (status) => {
@@ -153,7 +153,7 @@ const EmployeesPage = () => {
       pppk_paruh_waktu: 'bg-sky-500/15 text-sky-300',
       tpk: 'bg-amber-500/15 text-amber-300',
     };
-    return map[status] || 'bg-white/5 text-violet-300/60';
+    return map[status] || 'bg-white/5 text-slate-200';
   };
 
   // Avatar initials
@@ -186,9 +186,9 @@ const EmployeesPage = () => {
           <h1 className="text-2xl md:text-3xl font-bold text-white tracking-tight">
             Manajemen Pegawai
           </h1>
-          <p className="text-violet-300/60 text-sm mt-1 flex items-center gap-1.5">
+          <p className="text-slate-200 text-sm mt-1 flex items-center gap-1.5">
             <Users size={13} />
-            Total: <span className="font-semibold text-violet-300">{employees.length}</span> pegawai
+            Total: <span className="font-semibold text-violet-100">{employees.length}</span> pegawai
           </p>
         </div>
         <button
@@ -202,13 +202,13 @@ const EmployeesPage = () => {
 
       {/* Search */}
       <div className="relative mb-4">
-        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-violet-300/40" />
+        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
         <input
           type="text"
           placeholder="Cari nama, username, departemen..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full pl-10 pr-4 py-2.5 text-sm rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-violet-300/30 focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500/50 transition-all backdrop-blur-sm"
+          className="w-full pl-10 pr-4 py-2.5 text-sm rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500/50 transition-all backdrop-blur-sm"
         />
       </div>
 
@@ -222,7 +222,7 @@ const EmployeesPage = () => {
               </h2>
               <button
                 onClick={resetForm}
-                className="p-1.5 rounded-lg text-violet-300/60 hover:text-white hover:bg-white/5 transition-all"
+                className="p-1.5 rounded-lg text-slate-200 hover:text-white hover:bg-white/5 transition-all"
               >
                 <X size={20} />
               </button>
@@ -349,16 +349,16 @@ const EmployeesPage = () => {
         {loading ? (
           <div className="flex items-center justify-center py-16 gap-3">
             <div className="animate-spin rounded-full h-6 w-6 border-2 border-violet-500/30 border-t-violet-400"></div>
-            <span className="text-violet-300/60 text-sm">Memuat data...</span>
+            <span className="text-slate-200 text-sm">Memuat data...</span>
           </div>
         ) : filtered.length === 0 ? (
           <div className="text-center py-16 flex flex-col items-center gap-3">
             <div className="p-4 rounded-2xl bg-white/5">
-              <Users size={32} className="text-violet-300/40" />
+              <Users size={32} className="text-slate-400" />
             </div>
             <div>
               <p className="text-violet-200/60 font-medium">Tidak ada data pegawai</p>
-              <p className="text-violet-300/40 text-xs mt-1">
+              <p className="text-slate-400 text-xs mt-1">
                 Klik "Tambah Pegawai" untuk menambahkan
               </p>
             </div>
@@ -370,13 +370,13 @@ const EmployeesPage = () => {
               <table className="w-full text-sm">
                 <thead className="bg-white/5 border-b border-white/10">
                   <tr>
-                    <th className="text-left px-4 py-3 font-semibold text-violet-300/60 text-xs uppercase tracking-wider">Nama</th>
-                    <th className="text-left px-4 py-3 font-semibold text-violet-300/60 text-xs uppercase tracking-wider hidden xl:table-cell">Username</th>
-                    <th className="text-left px-4 py-3 font-semibold text-violet-300/60 text-xs uppercase tracking-wider">Role</th>
-                    <th className="text-left px-4 py-3 font-semibold text-violet-300/60 text-xs uppercase tracking-wider hidden lg:table-cell">Status</th>
-                    <th className="text-left px-4 py-3 font-semibold text-violet-300/60 text-xs uppercase tracking-wider hidden lg:table-cell">Departemen</th>
-                    <th className="text-left px-4 py-3 font-semibold text-violet-300/60 text-xs uppercase tracking-wider hidden xl:table-cell">Jabatan</th>
-                    <th className="text-center px-4 py-3 font-semibold text-violet-300/60 text-xs uppercase tracking-wider">Aksi</th>
+                    <th className="text-left px-4 py-3 font-semibold text-slate-200 text-xs uppercase tracking-wider">Nama</th>
+                    <th className="text-left px-4 py-3 font-semibold text-slate-200 text-xs uppercase tracking-wider hidden xl:table-cell">Username</th>
+                    <th className="text-left px-4 py-3 font-semibold text-slate-200 text-xs uppercase tracking-wider">Role</th>
+                    <th className="text-left px-4 py-3 font-semibold text-slate-200 text-xs uppercase tracking-wider hidden lg:table-cell">Status</th>
+                    <th className="text-left px-4 py-3 font-semibold text-slate-200 text-xs uppercase tracking-wider hidden lg:table-cell">Departemen</th>
+                    <th className="text-left px-4 py-3 font-semibold text-slate-200 text-xs uppercase tracking-wider hidden xl:table-cell">Jabatan</th>
+                    <th className="text-center px-4 py-3 font-semibold text-slate-200 text-xs uppercase tracking-wider">Aksi</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/5">
@@ -389,7 +389,7 @@ const EmployeesPage = () => {
                           </div>
                           <div className="min-w-0">
                             <p className="font-medium text-white">{emp.full_name || '-'}</p>
-                            <p className="text-xs text-violet-300/40 xl:hidden font-mono mt-0.5">{emp.username || '-'}</p>
+                            <p className="text-xs text-slate-400 xl:hidden font-mono mt-0.5">{emp.username || '-'}</p>
                           </div>
                         </div>
                       </td>
@@ -438,7 +438,7 @@ const EmployeesPage = () => {
                       <div className="flex items-start justify-between gap-2">
                         <div className="min-w-0">
                           <p className="font-semibold text-white truncate">{emp.full_name || '-'}</p>
-                          <p className="text-xs text-violet-300/40 font-mono">@{emp.username || '-'}</p>
+                          <p className="text-xs text-slate-400 font-mono">@{emp.username || '-'}</p>
                         </div>
                         <div className="flex gap-1.5 shrink-0">
                           <button onClick={() => handleEdit(emp)}
@@ -463,11 +463,11 @@ const EmployeesPage = () => {
                       </div>
                       <div className="grid grid-cols-2 gap-2 mt-3 text-xs">
                         <div>
-                          <p className="text-violet-300/40 uppercase tracking-wider">Departemen</p>
+                          <p className="text-slate-400 uppercase tracking-wider">Departemen</p>
                           <p className="text-violet-200/80 mt-0.5">{emp.department || '-'}</p>
                         </div>
                         <div>
-                          <p className="text-violet-300/40 uppercase tracking-wider">Jabatan</p>
+                          <p className="text-slate-400 uppercase tracking-wider">Jabatan</p>
                           <p className="text-violet-200/80 mt-0.5">{emp.position || '-'}</p>
                         </div>
                       </div>
@@ -494,3 +494,4 @@ function RefreshCwIconSpinning() {
 }
 
 export default EmployeesPage;
+

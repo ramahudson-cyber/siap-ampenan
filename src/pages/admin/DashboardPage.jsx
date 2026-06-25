@@ -14,7 +14,7 @@ function StatCard({ title, value, subtitle, icon: Icon, accent = "from-violet-50
     <div className={`${cardBase} hover:scale-[1.02] hover:shadow-violet-900/20 hover:shadow-lg animate-fade-in`}>
       <div className="flex items-start justify-between gap-2 md:gap-3">
         <div className="min-w-0">
-          <p className="text-[10px] sm:text-xs text-violet-300/60 uppercase tracking-wider truncate">{title}</p>
+          <p className="text-[10px] sm:text-xs text-slate-200 uppercase tracking-wider truncate">{title}</p>
           {loading ? (
             <div className="h-8 sm:h-10 w-16 sm:w-20 bg-white/10 animate-pulse rounded-lg mt-1 sm:mt-2" />
           ) : (
@@ -40,7 +40,7 @@ function AttendanceBadge({ status }) {
     terlambat: "bg-amber-500/15 text-amber-300 ring-amber-500/30",
   };
   return (
-    <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ring-1 ${map[status] || "bg-white/5 text-violet-300/60 ring-white/10"}`}>
+    <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ring-1 ${map[status] || "bg-white/5 text-slate-200 ring-white/10"}`}>
       {status?.toUpperCase() || "-"}
     </span>
   );
@@ -167,7 +167,7 @@ export default function DashboardPage() {
       <div className="flex justify-end">
         <button
           onClick={fetchDashboardData}
-          className="flex items-center gap-1.5 px-3 py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-violet-300 hover:text-white rounded-xl text-xs font-medium transition-all shrink-0"
+          className="flex items-center gap-1.5 px-3 py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-violet-100 hover:text-white rounded-xl text-xs font-medium transition-all shrink-0"
         >
           <RefreshCw size={13} className={loading ? "animate-spin" : ""} />
           Refresh
@@ -187,7 +187,7 @@ export default function DashboardPage() {
         <div className={`${cardBase} lg:col-span-2`}>
           <div className="flex items-center justify-between mb-3 md:mb-6">
             <h2 className="text-sm sm:text-base md:text-lg font-bold text-white">Grafik Presensi 7 Hari</h2>
-            <div className="flex items-center gap-2 text-xs text-violet-300/60">
+            <div className="flex items-center gap-2 text-xs text-slate-200">
               <TrendingUp size={14} /> Kehadiran harian
             </div>
           </div>
@@ -198,7 +198,7 @@ export default function DashboardPage() {
               const isToday = i === 6;
               return (
                 <div key={i} className="flex-1 flex flex-col items-center gap-1 sm:gap-1.5 group">
-                  <span className="text-[10px] sm:text-xs text-violet-300/80 font-semibold tabular-nums">{val}</span>
+                  <span className="text-[10px] sm:text-xs text-violet-100/80 font-semibold tabular-nums">{val}</span>
                   <div
                     className={`w-full rounded-t-lg md:rounded-t-xl transition-all duration-300 group-hover:scale-105 ${
                       isToday
@@ -207,7 +207,7 @@ export default function DashboardPage() {
                     }`}
                     style={{ height: `${(val / maxWeekly) * 100}%`, minHeight: val > 0 ? "6px" : "0" }}
                   />
-                  <span className={`text-[10px] sm:text-xs ${isToday ? "font-bold text-violet-300" : "text-violet-300/40"}`}>
+                  <span className={`text-[10px] sm:text-xs ${isToday ? "font-bold text-violet-100" : "text-slate-400"}`}>
                     {DAYS[d.getDay()]}
                   </span>
                 </div>
@@ -220,7 +220,7 @@ export default function DashboardPage() {
           <div className="flex items-center justify-between mb-3 md:mb-4">
             <h2 className="text-sm sm:text-base md:text-lg font-bold text-white">Pengumuman</h2>
             <div className="p-1.5 rounded-lg bg-violet-500/15">
-              <Bell size={16} className="text-violet-300" />
+              <Bell size={16} className="text-violet-100" />
             </div>
           </div>
           {loading ? (
@@ -230,9 +230,9 @@ export default function DashboardPage() {
           ) : announcements.length === 0 ? (
             <div className="text-center py-6 sm:py-8 flex flex-col items-center gap-1.5 sm:gap-2">
               <div className="p-2 sm:p-3 rounded-2xl bg-white/5">
-                <BellOff size={18} className="sm:w-6 sm:h-6 text-violet-300/40" />
+                <BellOff size={18} className="sm:w-6 sm:h-6 text-slate-400" />
               </div>
-              <p className="text-violet-300/40 text-xs sm:text-sm">Belum ada pengumuman</p>
+              <p className="text-slate-400 text-xs sm:text-sm">Belum ada pengumuman</p>
             </div>
           ) : (
             <div className="space-y-3">
@@ -254,7 +254,7 @@ export default function DashboardPage() {
       <div className={cardBase}>
           <div className="flex items-center justify-between mb-3 md:mb-4">
           <h2 className="text-sm sm:text-base md:text-lg font-bold text-white">Absensi Terkini Hari Ini</h2>
-          <div className="flex items-center gap-1.5 text-[10px] sm:text-xs text-violet-300/60">
+          <div className="flex items-center gap-1.5 text-[10px] sm:text-xs text-slate-200">
             <Calendar size={12} className="sm:w-[14px] sm:h-[14px]" /> {lastUpdated && `Update: ${lastUpdated}`}
           </div>
         </div>
@@ -266,11 +266,11 @@ export default function DashboardPage() {
         ) : recentAttendance.length === 0 ? (
           <div className="text-center py-8 sm:py-12 flex flex-col items-center gap-2 sm:gap-3">
             <div className="p-3 sm:p-4 rounded-2xl bg-white/5">
-              <Inbox size={24} className="sm:w-8 sm:h-8 text-violet-300/40" />
+              <Inbox size={24} className="sm:w-8 sm:h-8 text-slate-400" />
             </div>
             <div>
               <p className="text-violet-200/60 font-medium text-sm sm:text-base">Belum ada absensi hari ini</p>
-              <p className="text-violet-300/40 text-[11px] sm:text-xs mt-0.5 sm:mt-1">Data akan muncul setelah pegawai melakukan check-in</p>
+              <p className="text-slate-400 text-[11px] sm:text-xs mt-0.5 sm:mt-1">Data akan muncul setelah pegawai melakukan check-in</p>
             </div>
           </div>
         ) : (
@@ -278,11 +278,11 @@ export default function DashboardPage() {
             <table className="w-full text-xs sm:text-sm">
               <thead>
                 <tr className="bg-white/5 border-b border-white/10">
-                  <th className="text-left py-2.5 px-3 font-semibold text-violet-300/60 text-[10px] sm:text-xs uppercase tracking-wider">Nama</th>
-                  <th className="text-left py-2.5 px-3 font-semibold text-violet-300/60 text-[10px] sm:text-xs uppercase tracking-wider hidden lg:table-cell">Departemen</th>
-                  <th className="text-left py-2.5 px-3 font-semibold text-violet-300/60 text-[10px] sm:text-xs uppercase tracking-wider">Masuk</th>
-                  <th className="text-left py-2.5 px-3 font-semibold text-violet-300/60 text-[10px] sm:text-xs uppercase tracking-wider hidden md:table-cell">Pulang</th>
-                  <th className="text-left py-2.5 px-3 font-semibold text-violet-300/60 text-[10px] sm:text-xs uppercase tracking-wider">Status</th>
+                  <th className="text-left py-2.5 px-3 font-semibold text-slate-200 text-[10px] sm:text-xs uppercase tracking-wider">Nama</th>
+                  <th className="text-left py-2.5 px-3 font-semibold text-slate-200 text-[10px] sm:text-xs uppercase tracking-wider hidden lg:table-cell">Departemen</th>
+                  <th className="text-left py-2.5 px-3 font-semibold text-slate-200 text-[10px] sm:text-xs uppercase tracking-wider">Masuk</th>
+                  <th className="text-left py-2.5 px-3 font-semibold text-slate-200 text-[10px] sm:text-xs uppercase tracking-wider hidden md:table-cell">Pulang</th>
+                  <th className="text-left py-2.5 px-3 font-semibold text-slate-200 text-[10px] sm:text-xs uppercase tracking-wider">Status</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5">
@@ -308,3 +308,4 @@ export default function DashboardPage() {
     </div>
   );
 }
+

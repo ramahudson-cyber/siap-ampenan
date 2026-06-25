@@ -530,7 +530,7 @@ export default function AttendancePage() {
         )}
 
         {!serverTime && (
-          <p className="text-center text-[10px] text-violet-300/40">
+          <p className="text-center text-[10px] text-slate-400">
             ⏳ Menunggu sinkronisasi server time untuk mencegah manipulasi waktu
           </p>
         )}
@@ -548,7 +548,7 @@ export default function AttendancePage() {
               </div>
               <div>
                 <h2 className="text-white font-bold text-base">Verifikasi Wajah</h2>
-                <p className="text-violet-300/60 text-[11px]">Posisikan wajah & senyum</p>
+                <p className="text-slate-200 text-[11px]">Posisikan wajah & senyum</p>
               </div>
             </div>
             <button onClick={closeCameraModal} className="w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 text-white flex items-center justify-center transition active:scale-95">
@@ -585,7 +585,7 @@ export default function AttendancePage() {
                 <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/80">
                   <Loader2 size={36} className="animate-spin text-violet-400 mb-3" />
                   <p className="text-white text-sm font-medium">{faceMessage || "Menyiapkan..."}</p>
-                  <p className="text-violet-300/50 text-[10px] mt-1">Mohon tunggu sebentar</p>
+                  <p className="text-slate-300 text-[10px] mt-1">Mohon tunggu sebentar</p>
                 </div>
               )}
 

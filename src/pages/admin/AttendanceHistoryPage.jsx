@@ -39,7 +39,7 @@ const cardBase =
   "bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl transition-all";
 
 const inputBase =
-  "px-3 py-2 text-sm rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-violet-300/30 focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500/50 transition-all";
+  "px-3 py-2 text-sm rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500/50 transition-all";
 
 // ── Helper ───────────────────────────────────────────────────────────────────
 const fmtTime = (iso) =>
@@ -75,7 +75,7 @@ const avatarGradient = (name = "") => {
 
 // ── Sub-komponen ─────────────────────────────────────────────────────────────
 function StatusBadge({ status }) {
-  const s = STATUS_STYLE[status] ?? { bg: "bg-white/5 text-violet-300/60 ring-white/10", icon: null };
+  const s = STATUS_STYLE[status] ?? { bg: "bg-white/5 text-slate-200 ring-white/10", icon: null };
   return (
     <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold ring-1 ${s.bg}`}>
       {s.icon}
@@ -92,7 +92,7 @@ function SummaryCard({ label, value, accent, icon: Icon }) {
       </div>
       <div className="min-w-0">
         <p className="text-2xl md:text-3xl font-bold text-white tabular-nums leading-none">{value}</p>
-        <p className="text-xs text-violet-300/60 uppercase tracking-wider mt-1.5 truncate">{label}</p>
+        <p className="text-xs text-slate-200 uppercase tracking-wider mt-1.5 truncate">{label}</p>
       </div>
     </div>
   );
@@ -222,7 +222,7 @@ export default function AttendanceHistoryPage() {
       <div className="flex items-center justify-between gap-3">
         <div className="min-w-0">
           <h1 className="text-2xl md:text-3xl font-bold text-white tracking-tight">Riwayat Absensi</h1>
-          <p className="text-sm text-violet-300/60 mt-1">Data absensi seluruh pegawai</p>
+          <p className="text-sm text-slate-200 mt-1">Data absensi seluruh pegawai</p>
         </div>
         <button
           onClick={exportCSV}
@@ -247,7 +247,7 @@ export default function AttendanceHistoryPage() {
         <div className="flex flex-col md:flex-row gap-3">
           {/* Search - Full width on mobile, flex-1 on desktop */}
           <div className="relative flex-1">
-            <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-violet-300/40" />
+            <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
               type="text"
               placeholder="Cari nama / departemen..."
@@ -261,7 +261,7 @@ export default function AttendanceHistoryPage() {
           <div className="flex flex-wrap items-center gap-3">
             {/* Status filter */}
             <div className="relative">
-              <Filter size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-violet-300/40 pointer-events-none" />
+              <Filter size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
               <select
                 value={statusFilter}
                 onChange={e => setStatus(e.target.value)}
@@ -275,14 +275,14 @@ export default function AttendanceHistoryPage() {
 
             {/* Date filters grouped */}
             <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
-              <span className="text-xs text-violet-300/60 uppercase tracking-wider whitespace-nowrap">Dari</span>
+              <span className="text-xs text-slate-200 uppercase tracking-wider whitespace-nowrap">Dari</span>
               <input
                 type="date"
                 value={dateFrom}
                 onChange={e => setDateFrom(e.target.value)}
                 className={`${inputBase} [color-scheme:dark] w-full sm:w-auto`}
               />
-              <span className="text-xs text-violet-300/60 uppercase tracking-wider whitespace-nowrap">Sampai</span>
+              <span className="text-xs text-slate-200 uppercase tracking-wider whitespace-nowrap">Sampai</span>
               <input
                 type="date"
                 value={dateTo}
@@ -294,7 +294,7 @@ export default function AttendanceHistoryPage() {
             {/* Refresh */}
             <button
               onClick={() => fetchRecords(true)}
-              className="p-2.5 rounded-xl border border-white/10 bg-white/5 text-violet-300/70 hover:text-violet-200 hover:bg-white/10 hover:scale-105 transition-all shrink-0"
+              className="p-2.5 rounded-xl border border-white/10 bg-white/5 text-violet-100/70 hover:text-violet-200 hover:bg-white/10 hover:scale-105 transition-all shrink-0"
               aria-label="Refresh"
             >
               <RefreshCw size={15} className={loading ? "animate-spin" : ""} />
@@ -313,11 +313,11 @@ export default function AttendanceHistoryPage() {
         ) : records.length === 0 ? (
           <div className="text-center py-16 flex flex-col items-center gap-3">
             <div className="p-4 rounded-2xl bg-white/5">
-              <Inbox size={32} className="text-violet-300/40" />
+              <Inbox size={32} className="text-slate-400" />
             </div>
             <div>
               <p className="text-violet-200/60 font-medium">Tidak ada data pada rentang tanggal ini</p>
-              <p className="text-violet-300/40 text-xs mt-1">Coba ubah filter tanggal atau status</p>
+              <p className="text-slate-400 text-xs mt-1">Coba ubah filter tanggal atau status</p>
             </div>
           </div>
         ) : (
@@ -327,13 +327,13 @@ export default function AttendanceHistoryPage() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-white/10 bg-white/5">
-                    <th className="text-left py-3 px-4 font-semibold text-violet-300/60 text-xs uppercase tracking-wider">Tanggal</th>
-                    <th className="text-left py-3 px-4 font-semibold text-violet-300/60 text-xs uppercase tracking-wider">Nama</th>
-                    <th className="text-left py-3 px-4 font-semibold text-violet-300/60 text-xs uppercase tracking-wider">Departemen</th>
-                    <th className="text-left py-3 px-4 font-semibold text-violet-300/60 text-xs uppercase tracking-wider">Clock In</th>
-                    <th className="text-left py-3 px-4 font-semibold text-violet-300/60 text-xs uppercase tracking-wider">Clock Out</th>
-                    <th className="text-left py-3 px-4 font-semibold text-violet-300/60 text-xs uppercase tracking-wider">Status</th>
-                    <th className="text-left py-3 px-4 font-semibold text-violet-300/60 text-xs uppercase tracking-wider">Terlambat</th>
+                    <th className="text-left py-3 px-4 font-semibold text-slate-200 text-xs uppercase tracking-wider">Tanggal</th>
+                    <th className="text-left py-3 px-4 font-semibold text-slate-200 text-xs uppercase tracking-wider">Nama</th>
+                    <th className="text-left py-3 px-4 font-semibold text-slate-200 text-xs uppercase tracking-wider">Departemen</th>
+                    <th className="text-left py-3 px-4 font-semibold text-slate-200 text-xs uppercase tracking-wider">Clock In</th>
+                    <th className="text-left py-3 px-4 font-semibold text-slate-200 text-xs uppercase tracking-wider">Clock Out</th>
+                    <th className="text-left py-3 px-4 font-semibold text-slate-200 text-xs uppercase tracking-wider">Status</th>
+                    <th className="text-left py-3 px-4 font-semibold text-slate-200 text-xs uppercase tracking-wider">Terlambat</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/5">
@@ -370,7 +370,7 @@ export default function AttendanceHistoryPage() {
                             +{r.late_minutes} menit
                           </span>
                         ) : (
-                          <span className="text-xs text-violet-300/30">–</span>
+                          <span className="text-xs text-slate-500">–</span>
                         )}
                       </td>
                     </tr>
@@ -391,21 +391,21 @@ export default function AttendanceHistoryPage() {
                       <div className="flex items-start justify-between gap-2">
                         <div className="min-w-0">
                           <p className="font-semibold text-white truncate">{r.profiles?.full_name ?? "–"}</p>
-                          <p className="text-xs text-violet-300/50">{r.profiles?.department ?? "–"}</p>
+                          <p className="text-xs text-slate-300">{r.profiles?.department ?? "–"}</p>
                         </div>
                         <StatusBadge status={r.attendance_status} />
                       </div>
-                      <div className="flex items-center gap-2 mt-2 text-xs text-violet-300/50">
+                      <div className="flex items-center gap-2 mt-2 text-xs text-slate-300">
                         <Calendar size={11} />
                         {fmtDate(r.date)}
                       </div>
                       <div className="grid grid-cols-2 gap-2 mt-3 text-xs">
                         <div className="bg-white/5 rounded-lg p-2">
-                          <p className="text-violet-300/40 uppercase tracking-wider text-[10px]">Check In</p>
+                          <p className="text-slate-400 uppercase tracking-wider text-[10px]">Check In</p>
                           <p className="text-emerald-300 font-mono tabular-nums mt-0.5">{fmtTime(r.clock_in_time)}</p>
                         </div>
                         <div className="bg-white/5 rounded-lg p-2">
-                          <p className="text-violet-300/40 uppercase tracking-wider text-[10px]">Check Out</p>
+                          <p className="text-slate-400 uppercase tracking-wider text-[10px]">Check Out</p>
                           <p className="text-rose-300 font-mono tabular-nums mt-0.5">{fmtTime(r.clock_out_time)}</p>
                         </div>
                       </div>
@@ -425,7 +425,7 @@ export default function AttendanceHistoryPage() {
         {/* Pagination */}
         {!loading && totalPages > 1 && (
           <div className="flex items-center justify-between px-4 py-3 border-t border-white/10 gap-2">
-            <p className="text-xs text-violet-300/60">
+            <p className="text-xs text-slate-200">
               Halaman <span className="text-white font-medium">{page}</span> dari {totalPages} · {total} data
             </p>
             <div className="flex gap-2">
@@ -452,3 +452,4 @@ export default function AttendanceHistoryPage() {
     </div>
   );
 }
+

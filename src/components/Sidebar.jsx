@@ -58,7 +58,7 @@ export default function Sidebar({ menuOpen = false, setMenuOpen = () => {} }) {
               <p className="text-[10px] text-violet-100/70">Puskesmas Ampenan</p>
             </div>
           </div>
-          <button onClick={() => setMenuOpen(false)} className="xl:hidden p-1.5 text-violet-300 hover:text-white hover:bg-white/10 rounded-lg transition">
+          <button onClick={() => setMenuOpen(false)} className="xl:hidden p-1.5 text-violet-100 hover:text-white hover:bg-white/10 rounded-lg transition">
             <X size={18} />
           </button>
         </div>
@@ -116,3 +116,4 @@ export default function Sidebar({ menuOpen = false, setMenuOpen = () => {} }) {
     </>
   );
 }
+

@@ -74,7 +74,7 @@ export default function EmployeeDashboard() {
               <p className="text-[11px] text-violet-200">{todayAttendance ? `Masuk: ${new Date(todayAttendance.clock_in_time).toLocaleTimeString("id-ID", {hour:"2-digit",minute:"2-digit"})}` : "Tap untuk absen"}</p>
             </div>
           </div>
-          <ChevronRight size={18} className="text-violet-300" />
+          <ChevronRight size={18} className="text-violet-100" />
         </div>
       </Link>
 
@@ -103,7 +103,7 @@ export default function EmployeeDashboard() {
         <div className="bg-[#6B4BA3] rounded-2xl p-4 shadow-lg shadow-[#2A1A3A]/20">
           {announcements.length === 0 ? (
             <div className="text-center py-4">
-              <Bell size={20} className="mx-auto text-violet-300/50 mb-1" />
+              <Bell size={20} className="mx-auto text-slate-300 mb-1" />
               <p className="text-xs text-violet-200/60">Belum ada pengumuman</p>
             </div>
           ) : (
