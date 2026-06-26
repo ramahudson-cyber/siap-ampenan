@@ -263,11 +263,62 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-gradient-to-br from-[#1a0533] via-[#0f0524] to-[#2d0a4e] animate-gradient-bg">
-      {/* Animated Gradient Orbs */}
-      <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-purple-700 rounded-full mix-blend-screen filter blur-[120px] opacity-30 animate-orb"></div>
-      <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-violet-800 rounded-full mix-blend-screen filter blur-[120px] opacity-25 animate-orb animate-orb-delay"></div>
-      <div className="absolute top-[40%] left-[30%] w-[300px] h-[300px] bg-indigo-700 rounded-full mix-blend-screen filter blur-[100px] opacity-20 animate-orb animate-orb-delay-2"></div>
+    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-gradient-to-br from-[#0f0214] via-[#1a0533] to-[#2d0a4e]">
+      {/* Elegant Purple Gradient Blob Shapes */}
+      <div className="absolute inset-0 bg-gradient-to-br from-violet-900/20 via-transparent to-purple-900/20"></div>
+
+      {/* Large organic blob — top left */}
+      <div className="absolute -top-48 -left-48 w-[600px] h-[600px] opacity-25 animate-blob">
+        <svg viewBox="0 0 600 600" className="w-full h-full">
+          <defs>
+            <linearGradient id="blob1" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#8b5cf6" />
+              <stop offset="100%" stopColor="#6d28d9" />
+            </linearGradient>
+          </defs>
+          <path d="M300,40C400,30 520,100 550,210C580,320 540,430 460,500C380,570 240,580 140,510C40,440 -10,290 30,180C70,70 200,50 300,40Z" fill="url(#blob1)" />
+        </svg>
+      </div>
+
+      {/* Medium blob — bottom right */}
+      <div className="absolute -bottom-32 -right-32 w-[450px] h-[450px] opacity-20 animate-blob animation-delay-2000">
+        <svg viewBox="0 0 450 450" className="w-full h-full">
+          <defs>
+            <linearGradient id="blob2" x1="0%" y1="100%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="#a78bfa" />
+              <stop offset="100%" stopColor="#7c3aed" />
+            </linearGradient>
+          </defs>
+          <path d="M225,25C315,30 420,100 430,200C440,300 350,420 250,430C150,440 30,350 20,250C10,150 135,20 225,25Z" fill="url(#blob2)" />
+        </svg>
+      </div>
+
+      {/* Small accent blob — top right */}
+      <div className="absolute top-24 right-16 w-[200px] h-[200px] opacity-15 animate-blob animation-delay-4000">
+        <svg viewBox="0 0 200 200" className="w-full h-full">
+          <defs>
+            <linearGradient id="blob3" x1="0%" y1="50%" x2="100%" y2="50%">
+              <stop offset="0%" stopColor="#c4b5fd" />
+              <stop offset="100%" stopColor="#8b5cf6" />
+            </linearGradient>
+          </defs>
+          <path d="M100,12C155,18 188,65 185,110C182,155 140,188 90,185C40,182 8,135 12,85C16,35 45,6 100,12Z" fill="url(#blob3)" />
+        </svg>
+      </div>
+
+      {/* Decorative curving line */}
+      <div className="absolute bottom-0 left-0 right-0 h-32 opacity-15">
+        <svg viewBox="0 0 1440 120" className="w-full h-full" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="lineGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0" />
+              <stop offset="50%" stopColor="#a78bfa" stopOpacity="0.5" />
+              <stop offset="100%" stopColor="#8b5cf6" stopOpacity="0" />
+            </linearGradient>
+          </defs>
+          <path d="M0,60 C360,120 1080,0 1440,60 L1440,120 L0,120 Z" fill="url(#lineGrad)" />
+        </svg>
+      </div>
 
       <div className="relative z-10 w-full max-w-[380px]">
         {/* Logo */}

@@ -478,6 +478,7 @@ function TabJamKerja() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [settings, setSettings] = useState({});
+  const [setupError, setSetupError] = useState(null);
 
   const settingKeys = [
     { key: "work_start_time", label: "Jam Mulai Kerja", type: "time", category: "attendance", icon: Clock, desc: "Waktu mulai jam kerja" },
@@ -494,20 +495,27 @@ function TabJamKerja() {
 
   const fetchSettings = async () => {
     setLoading(true);
+    setSetupError(null);
     try {
       const { data, error } = await supabase
         .from("system_settings")
         .select("*")
         .in("setting_key", settingKeys.map(s => s.key));
 
-      if (error) throw error;
+      if (error) {
+        if (error.code === "PGRST116" || error.message?.includes("relation") || error.message?.includes("does not exist")) {
+          setSetupError("Tabel system_settings belum tersedia. Jalankan script SQL di scripts/create-system-settings.sql");
+          return;
+        }
+        throw error;
+      }
 
       const map = {};
       data.forEach(s => { map[s.setting_key] = s.value; });
       setSettings(map);
     } catch (err) {
-      console.error("❌ Fetch settings:", err);
-      toast.error("Gagal memuat settings");
+      console.error("Fetch settings:", err);
+      setSetupError("Gagal memuat settings: " + err.message);
     } finally {
       setLoading(false);
     }
@@ -528,12 +536,18 @@ function TabJamKerja() {
           p_category: item.category,
         });
 
-        if (error) throw error;
+        if (error) {
+          if (error.message?.includes("function") && error.message?.includes("does not exist")) {
+            setSetupError("Function set_system_setting belum tersedia. Jalankan script SQL di scripts/create-system-settings.sql");
+            return;
+          }
+          throw error;
+        }
       }
 
-      toast.success("✅ Semua settings berhasil disimpan");
+      toast.success("Semua settings berhasil disimpan");
     } catch (err) {
-      console.error("❌ Save settings:", err);
+      console.error("Save settings:", err);
       toast.error("Gagal simpan: " + err.message);
     } finally {
       setSaving(false);
@@ -544,6 +558,32 @@ function TabJamKerja() {
     return (
       <div className="flex items-center justify-center py-20">
         <RefreshCw size={28} className="animate-spin text-violet-400" />
+      </div>
+    );
+  }
+
+  if (setupError) {
+    return (
+      <div className="space-y-5">
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          <div>
+            <h2 className={sectionTitle}>Jam Kerja & Konfigurasi</h2>
+            <p className={sectionSub}>Atur jam kerja, radius, kuota cuti, dll</p>
+          </div>
+        </div>
+        <div className="bg-amber-500/10 border border-amber-500/20 rounded-2xl p-6 text-center flex flex-col items-center gap-4">
+          <AlertTriangle size={36} className="text-amber-400" />
+          <div>
+            <h3 className="text-lg font-semibold text-white mb-1">Database Belum Siap</h3>
+            <p className="text-sm text-amber-200/80 max-w-md">{setupError}</p>
+          </div>
+          <div className="flex gap-3">
+            <button onClick={fetchSettings}
+              className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-violet-600 to-purple-700 text-white rounded-xl text-sm font-medium hover:shadow-lg hover:shadow-violet-900/30 transition-all">
+              <RefreshCw size={16} /> Coba Lagi
+            </button>
+          </div>
+        </div>
       </div>
     );
   }
