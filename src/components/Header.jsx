@@ -47,18 +47,17 @@ function Header() {
       style={{ paddingTop: "env(safe-area-inset-top)" }}
     >
       <div className="flex items-center justify-between h-[72px] md:h-20 px-4 md:px-10">
-        {/* LEFT: Greeting + Date + Clock */}
-        <div className="flex items-center min-w-0 flex-1">
+        {/* LEFT: Avatar + Greeting + Date */}
+        <div className="flex items-center gap-3 min-w-0 flex-1">
+          <div className="w-9 h-9 md:w-10 md:h-10 rounded-full bg-gradient-to-br from-violet-500 to-purple-700 flex items-center justify-center text-white text-xs font-bold shadow-lg shrink-0">
+            {userName.charAt(0).toUpperCase()}
+          </div>
           <div className="flex flex-col min-w-0">
-            <h1 className="text-base sm:text-lg md:text-xl font-bold text-slate-800 dark:text-slate-100 truncate tracking-tight">
+            <h1 className="text-sm sm:text-base md:text-lg font-bold text-slate-800 dark:text-slate-100 truncate tracking-tight">
               Hai, {userName}
             </h1>
-            <span className="text-[10px] md:text-xs text-slate-500 dark:text-slate-400 mt-0.5 truncate font-medium">
+            <span className="text-[10px] md:text-xs text-slate-500 dark:text-slate-400 truncate font-medium">
               {todayLabel}
-            </span>
-            <span className="flex items-center gap-1 text-[10px] md:text-xs text-slate-400 dark:text-slate-500 mt-0.5 font-mono tabular-nums">
-              <Clock size={10} />
-              {timeStr} WITA
             </span>
           </div>
         </div>

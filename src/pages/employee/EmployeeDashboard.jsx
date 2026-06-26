@@ -36,27 +36,27 @@ export default function EmployeeDashboard() {
   if (loading) {
     return (
       <div className="space-y-3">
-        <div className="bg-[#6B4BA3] rounded-2xl p-5 h-20 animate-pulse"></div>
-        <div className="bg-[#6B4BA3] rounded-2xl p-4 h-16 animate-pulse"></div>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">{[1,2,3,4].map(i => <div key={i} className="bg-[#6B4BA3] rounded-xl p-3 h-16 animate-pulse"></div>)}</div>
+        <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-5 h-20 animate-pulse"></div>
+        <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-4 h-16 animate-pulse"></div>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">{[1,2,3,4].map(i => <div key={i} className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-3 h-16 animate-pulse"></div>)}</div>
       </div>
     );
   }
 
   const now = new Date();
   const timeStr = now.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" });
-  const dateStr = now.toLocaleDateString("id-ID", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+  const dateStr = now.toLocaleDateString("id-ID", { weekday: "long", day: "numeric", month: "long", year: "numeric" }).replace(/\b\w/g, c => c.toUpperCase());
 
   return (
     <div className="space-y-3 animate-fade-in">
-      {/* Hero - Solid Purple Card */}
-      <div className="bg-[#6B4BA3] rounded-2xl p-5 text-white shadow-lg shadow-[#2A1A3A]/30">
+      {/* Hero - Glassmorphism Card */}
+      <div className="bg-white/[0.04] backdrop-blur-md border border-white/10 rounded-2xl p-5 shadow-lg shadow-violet-900/10">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-[10px] opacity-70 uppercase tracking-wider">{dateStr}</p>
-            <p className="text-2xl font-bold mt-1">{timeStr}</p>
+            <p className="text-[10px] text-slate-400 dark:text-slate-500 uppercase tracking-wider font-medium">{dateStr}</p>
+            <p className="text-2xl font-bold text-white mt-1">{timeStr}</p>
           </div>
-          <Link to="/employee/attendance" className="bg-white/20 px-4 py-2 rounded-xl text-xs font-semibold hover:bg-white/30 transition">
+          <Link to="/employee/attendance" className="bg-violet-500/20 hover:bg-violet-500/30 backdrop-blur-sm text-white px-4 py-2 rounded-xl text-xs font-semibold border border-violet-500/20 transition">
             Absen
           </Link>
         </div>
@@ -64,23 +64,23 @@ export default function EmployeeDashboard() {
 
       {/* Status */}
       <Link to="/employee/attendance" className="block">
-        <div className="bg-[#6B4BA3] rounded-2xl p-4 shadow-lg shadow-[#2A1A3A]/20 flex items-center justify-between hover:bg-[#7A5BB3] transition">
+        <div className="bg-white/[0.04] backdrop-blur-md border border-white/10 rounded-2xl p-4 shadow-lg shadow-violet-900/10 flex items-center justify-between hover:bg-white/[0.06] transition">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
-              {todayAttendance ? <CheckCircle size={18} className="text-emerald-300" /> : <Calendar size={18} className="text-white" />}
+            <div className="w-10 h-10 rounded-xl bg-violet-500/10 flex items-center justify-center">
+              {todayAttendance ? <CheckCircle size={18} className="text-emerald-300" /> : <Calendar size={18} className="text-violet-300" />}
             </div>
             <div>
               <p className="text-sm font-semibold text-white">{todayAttendance ? "Sudah Absen" : "Belum Absen"}</p>
-              <p className="text-[11px] text-violet-200">{todayAttendance ? `Masuk: ${new Date(todayAttendance.clock_in_time).toLocaleTimeString("id-ID", {hour:"2-digit",minute:"2-digit"})}` : "Tap untuk absen"}</p>
+              <p className="text-[11px] text-slate-400">{todayAttendance ? `Masuk: ${new Date(todayAttendance.clock_in_time).toLocaleTimeString("id-ID", {hour:"2-digit",minute:"2-digit"})}` : "Tap untuk absen"}</p>
             </div>
           </div>
-          <ChevronRight size={18} className="text-violet-100" />
+          <ChevronRight size={18} className="text-slate-500" />
         </div>
       </Link>
 
-      {/* Stats - Responsive: 2 cols mobile, 4 cols tablet+ */}
+      {/* Stats - Glassmorphism */}
       <div>
-        <p className="text-[10px] font-bold text-violet-200/60 uppercase tracking-widest mb-2 px-1">Bulan Ini</p>
+        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 px-1">Bulan Ini</p>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
           {[
             { label: "Hadir", value: stats.hadir, icon: CheckCircle, color: "text-emerald-300" },
@@ -88,30 +88,30 @@ export default function EmployeeDashboard() {
             { label: "Sakit", value: stats.sakit, icon: AlertCircle, color: "text-orange-300" },
             { label: "Alpha", value: stats.alpha, icon: XCircle, color: "text-red-300" },
           ].map((s) => (
-            <div key={s.label} className="bg-[#6B4BA3] rounded-xl p-3 text-center shadow-lg shadow-[#2A1A3A]/20">
+            <div key={s.label} className="bg-white/[0.04] backdrop-blur-md border border-white/10 rounded-xl p-3 text-center shadow-lg shadow-violet-900/10">
               <s.icon size={14} className={`mx-auto mb-1 ${s.color}`} />
               <p className="text-base font-bold text-white">{s.value}</p>
-              <p className="text-[9px] text-violet-200">{s.label}</p>
+              <p className="text-[9px] text-slate-400">{s.label}</p>
             </div>
           ))}
         </div>
       </div>
 
-      {/* Pengumuman */}
+      {/* Pengumuman - Glassmorphism */}
       <div>
-        <p className="text-[10px] font-bold text-violet-200/60 uppercase tracking-widest mb-2 px-1">Pengumuman</p>
-        <div className="bg-[#6B4BA3] rounded-2xl p-4 shadow-lg shadow-[#2A1A3A]/20">
+        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 px-1">Pengumuman</p>
+        <div className="bg-white/[0.04] backdrop-blur-md border border-white/10 rounded-2xl p-4 shadow-lg shadow-violet-900/10">
           {announcements.length === 0 ? (
             <div className="text-center py-4">
-              <Bell size={20} className="mx-auto text-slate-300 mb-1" />
-              <p className="text-xs text-violet-200/60">Belum ada pengumuman</p>
+              <Bell size={20} className="mx-auto text-slate-500 mb-1" />
+              <p className="text-xs text-slate-400">Belum ada pengumuman</p>
             </div>
           ) : (
             <div className="space-y-2">
               {announcements.map(a => (
-                <div key={a.id} className="p-3 bg-white/5 rounded-xl">
+                <div key={a.id} className="p-3 bg-white/[0.03] border border-white/5 rounded-xl">
                   <p className="text-sm font-semibold text-white">{a.title}</p>
-                  <p className="text-xs text-violet-200/80 mt-1">{a.content}</p>
+                  <p className="text-xs text-slate-400 mt-1">{a.content}</p>
                 </div>
               ))}
             </div>
