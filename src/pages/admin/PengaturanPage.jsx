@@ -621,7 +621,7 @@ function TabJamKerja() {
                     <p className="text-xs text-slate-400 mb-2">{item.desc}</p>
                     <input
                       type={item.type}
-                      value={settings[item.key] ?? DEFAULT_SETTINGS[item.key] || ""}
+                      value={(settings[item.key] ?? DEFAULT_SETTINGS[item.key]) || ""}
                       onChange={(e) => setSettings({ ...settings, [item.key]: e.target.value })}
                       className={inputBase + (item.type === "time" || item.type === "date" ? " [color-scheme:dark]" : "")}
                     />
