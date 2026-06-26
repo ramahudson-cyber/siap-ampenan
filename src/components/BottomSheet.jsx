@@ -15,25 +15,19 @@ export default function BottomSheet({ open, onClose, title, subtitle, children, 
   return (
     <>
       {open && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center animate-fade-in" onClick={onClose}>
-          {/* Backdrop */}
+        <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center animate-fade-in" onClick={onClose}>
           <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
 
-          {/* Sheet */}
-          <div
-            ref={sheetRef}
-            onClick={e => e.stopPropagation()}
+          <div ref={sheetRef} onClick={e => e.stopPropagation()}
             style={{ maxHeight: snap === "full" ? "95vh" : snap === "half" ? "60vh" : "85vh" }}
-            className="relative w-full max-w-lg bg-gradient-to-b from-[#1e0a35] to-[#12061f] border border-white/10 rounded-t-[28px] shadow-2xl shadow-violet-900/40 animate-slide-up overflow-hidden flex flex-col"
-          >
-            {/* Handle */}
-            <div className="flex justify-center pt-2.5 pb-1 shrink-0">
+            className="relative w-full max-w-lg bg-gradient-to-b from-[#1e0a35] to-[#12061f] border border-white/10 rounded-t-[28px] md:rounded-2xl shadow-2xl shadow-violet-900/40 animate-slide-up md:animate-fade-in overflow-hidden flex flex-col">
+
+            <div className="flex md:hidden justify-center pt-2.5 pb-1 shrink-0">
               <div className="w-10 h-1 rounded-full bg-white/20" />
             </div>
 
-            {/* Header */}
             {(title || subtitle) && (
-              <div className="flex items-center justify-between px-5 pt-2 pb-3 shrink-0">
+              <div className="flex items-center justify-between px-5 pt-2 md:pt-5 pb-3 shrink-0">
                 <div className="min-w-0 flex-1">
                   {title && <h3 className="text-sm font-bold text-white">{title}</h3>}
                   {subtitle && <p className="text-[10px] text-slate-400 mt-0.5">{subtitle}</p>}
@@ -45,7 +39,6 @@ export default function BottomSheet({ open, onClose, title, subtitle, children, 
               </div>
             )}
 
-            {/* Content */}
             <div className="flex-1 overflow-y-auto px-5 pb-6">
               {children}
             </div>
