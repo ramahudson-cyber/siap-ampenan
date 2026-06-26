@@ -228,13 +228,8 @@ export default function SchedulingPage() {
       {/* Controls */}
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="flex-1 relative">
-          <Users size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-          <select value={selectedUser} onChange={e => setSelectedUser(e.target.value)} className={`${inputBase} pl-9`}>
-            <option value="" className="bg-[#1a0a35]">Pilih Pegawai</option>
-            {employees.map(emp => (
-              <option key={emp.id} value={emp.id} className="bg-[#1a0a35]">{emp.full_name} ({emp.role})</option>
-            ))}
-          </select>
+          <Users size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 z-10" />
+          <EmployeeSearch employees={employees} value={selectedUser} onChange={setSelectedUser} />
         </div>
         <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-xl px-3 py-2">
           <button onClick={handlePrevMonth} className="p-1 rounded-lg hover:bg-white/10 text-slate-400 hover:text-white transition-all">
@@ -375,6 +370,59 @@ export default function SchedulingPage() {
       <div className="p-3 rounded-2xl bg-sky-500/5 border border-sky-500/20 text-[11px] text-slate-300">
         <p><span className="font-semibold text-sky-300">Petunjuk:</span> Pilih pegawai → klik tanggal untuk assign shift. Atau gunakan <strong>Isi Cepat</strong> untuk mengisi banyak hari sekaligus, atau <strong>Upload</strong> untuk import massal via Excel.</p>
       </div>
+    </div>
+  );
+}
+
+/* ============================================================
+   EMPLOYEE SEARCH DROPDOWN
+   ============================================================ */
+function EmployeeSearch({ employees, value, onChange }) {
+  const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState("");
+  const ref = useRef(null);
+  const selected = employees.find(e => e.id === value);
+
+  useEffect(() => {
+    const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  const filtered = query
+    ? employees.filter(e => e.full_name.toLowerCase().includes(query.toLowerCase()))
+    : employees;
+
+  return (
+    <div ref={ref} className="relative">
+      <div onClick={() => setOpen(!open)}
+        className="w-full px-3 py-2.5 pl-9 text-sm rounded-xl bg-white/5 border border-white/10 text-white cursor-pointer flex items-center gap-2 transition-all hover:bg-white/[0.08]">
+        {selected ? (
+          <>
+            <span className="flex-1 truncate">{selected.full_name}</span>
+            <span className="text-[10px] text-slate-500 shrink-0">{selected.role}</span>
+          </>
+        ) : (
+          <span className="text-slate-400 flex-1">Pilih Pegawai (ketik nama...)</span>
+        )}
+      </div>
+      {open && (
+        <div className="absolute top-full left-0 right-0 mt-1 z-50 bg-[#1a0533] border border-white/10 rounded-xl shadow-2xl shadow-violet-900/30 max-h-60 overflow-y-auto">
+          <div className="sticky top-0 bg-[#1a0533] p-2 border-b border-white/10">
+            <input autoFocus value={query} onChange={e => setQuery(e.target.value)}
+              placeholder="Ketik nama..."
+              className="w-full px-3 py-2 text-xs rounded-lg bg-white/5 border border-white/10 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-violet-500/50" />
+          </div>
+          {filtered.map(emp => (
+            <button key={emp.id} onClick={() => { onChange(emp.id); setOpen(false); setQuery(""); }}
+              className={`w-full flex items-center gap-2 px-3 py-2.5 text-xs text-left transition-all hover:bg-white/10 ${emp.id === value ? "bg-violet-600/20 text-violet-200" : "text-slate-300"}`}>
+              <span className="flex-1 truncate">{emp.full_name}</span>
+              <span className="text-[9px] text-slate-500 shrink-0">{emp.role}</span>
+            </button>
+          ))}
+          {!filtered.length && <p className="text-xs text-slate-500 text-center py-4">Tidak ditemukan</p>}
+        </div>
+      )}
     </div>
   );
 }
