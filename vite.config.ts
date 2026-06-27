@@ -18,10 +18,12 @@ export default defineConfig({
         short_name: 'SIAP',
         description: 'Sistem Informasi Administrasi & Presensi Puskesmas',
         start_url: '/',
+        scope: '/',
         display: 'standalone',
         orientation: 'portrait',
         background_color: '#5B3A8E',
         theme_color: '#5B3A8E',
+        permissions: ['camera'],
         icons: [
           {
             src: '/favicon.svg',

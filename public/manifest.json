@@ -3,10 +3,12 @@
   "short_name": "SIAP",
   "description": "Sistem Informasi Absensi Pegawai Puskesmas",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
+  "background_color": "#5B3A8E",
   "theme_color": "#5B3A8E",
   "orientation": "portrait",
+  "permissions": ["camera"],
   "icons": [
     {
       "src": "/favicon.svg",
@@ -14,7 +16,5 @@
       "type": "image/svg+xml",
       "purpose": "any maskable"
     }
-  ],
-  "permissions": ["camera"],
-  "required_permissions": ["camera"]
+  ]
 }
