@@ -79,6 +79,7 @@ export default function AttendancePage() {
   const [savingAttendance, setSavingAttendance] = useState(false);
   const [deviceVisitorId, setDeviceVisitorId] = useState("");
   const cameraStartingRef = useRef(false);
+  const fileInputRef = useRef(null);
 
   // ============================================================
   // ⏰ SYNC SERVER TIME — anti-cheat timestamp
@@ -507,6 +508,38 @@ export default function AttendancePage() {
     }
   };
 
+  // 📱 PWA iOS fallback: native camera via file input (tanpa tombol tambahan)
+  const handleNativePhoto = async (e) => {
+    const file = e.target?.files?.[0];
+    if (!file) return;
+    try {
+      setFaceStatus("loading");
+      setFaceMessage("Memproses foto...");
+      const reader = new FileReader();
+      reader.onload = async (ev) => {
+        const saved = await saveAttendanceToSupabase(ev.target.result, currentCoords);
+        if (saved) {
+          setFaceStatus("success");
+          setFaceMessage("Absensi tersimpan!");
+          setTimeout(() => closeCameraModal(), 1800);
+        } else {
+          setFaceStatus("idle");
+          setFaceMessage("");
+        }
+      };
+      reader.readAsDataURL(file);
+    } catch {
+      setFaceStatus("idle");
+      setFaceMessage("Gagal memproses foto");
+    }
+    e.target.value = "";
+  };
+
+  const triggerNativeCamera = () => {
+    closeCameraModal();
+    setTimeout(() => fileInputRef.current?.click(), 100);
+  };
+
   const scheduleDetection = () => {
     if (detectionTimer) clearTimeout(detectionTimer);
     if (!streamAlive() || !cameraOpen) return;
@@ -611,12 +644,15 @@ export default function AttendancePage() {
             ? "Kamera sedang dipakai app lain. Tutup app kamera lain."
             : "Gagal akses kamera: " + err.message;
 
-      if (!cameraOpen) {
+      cleanupCamera();
+      if (isStandalonePwa && !cameraOpen) {
+        // PWA iOS: otomatis buka native camera (tanpa tombol tambahan)
+        setPersistentError("Kamera web tidak tersedia di PWA. Buka kamera native...");
+        setTimeout(() => triggerNativeCamera(), 500);
+      } else if (!cameraOpen) {
         setPersistentError(errorMsg);
-        cleanupCamera();
       } else {
         setCameraError(errorMsg);
-        cleanupCamera();
       }
     } finally {
       cameraStartingRef.current = false;
@@ -889,6 +925,7 @@ export default function AttendancePage() {
         </div>
       )}
 
+      <input ref={fileInputRef} type="file" accept="image/*" capture="user" className="hidden" onChange={handleNativePhoto} />
     </>
   );
 }
