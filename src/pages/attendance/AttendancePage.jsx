@@ -68,6 +68,8 @@ export default function AttendancePage() {
 
   const [modelsLoaded, setModelsLoaded] = useState(false);
   const [modelsFailed, setModelsFailed] = useState(false);
+  const modelsReadyRef = useRef(false);
+  const modelsFailedRef = useRef(false);
   const [cameraOpen, setCameraOpen] = useState(false);
   const [faceStatus, setFaceStatus] = useState("idle");
   const [faceMessage, setFaceMessage] = useState("");
@@ -183,10 +185,12 @@ export default function AttendancePage() {
           ]);
         }
         setModelsLoaded(true);
+        modelsReadyRef.current = true;
         warmUpFaceModels();
       } catch (err) {
         console.error("Gagal load model:", err);
         setModelsFailed(true);
+        modelsFailedRef.current = true;
       }
     };
     loadModels();
@@ -520,35 +524,38 @@ export default function AttendancePage() {
     // 🔥 Warm-up enumerateDevices sebelum getUserMedia
     try { await navigator.mediaDevices.enumerateDevices(); } catch {}
 
+    // Coba {video: true} dulu (PWA iOS sering tolak facingMode)
     try {
+      return await navigator.mediaDevices.getUserMedia({
+        video: true,
+        audio: false,
+      });
+    } catch {
+      // Fallback: coba dengan facingMode
       return await navigator.mediaDevices.getUserMedia({
         video: { facingMode: "user" },
         audio: false,
       });
-    } catch (firstErr) {
-      // iOS PWA standalone kadang cuma terima {video: true} — coba sekali lagi
-      if (isStandalonePwa && firstErr.name === "NotAllowedError") {
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: true,
-          audio: false,
-        });
-        return stream;
-      }
-      throw firstErr;
     }
   };
 
   const openCameraModal = async () => {
+    // 🚨 KRITIS iOS SAFARI PWA:
+    // DILARANG ADA state update (setState) SEBELUM getUserMedia!
+    // React 18 batch flush di await KONSUMSI user gesture.
+    // Gunakan ref (bukan state) untuk pengecekan awal.
     if (cameraStartingRef.current) return;
-    if (!modelsLoaded && !modelsFailed) {
+    if (!modelsReadyRef.current && !modelsFailedRef.current) {
       setPersistentError("AI model belum siap. Tunggu beberapa detik.");
       return;
     }
     cameraStartingRef.current = true;
-    setPersistentError("");
 
     try {
       const stream = await getUserMediaWithFallback();
+
+      // ✅ Stream didapat — baru aman update state
+      setPersistentError("");
 
       streamRef.current = stream;
       setCameraError("");
@@ -827,7 +834,7 @@ export default function AttendancePage() {
           <div className="relative w-full max-w-md aspect-square">
             <div className="absolute -inset-4 bg-gradient-to-br from-violet-600/20 to-purple-800/20 rounded-[2rem] blur-2xl"></div>
             <div className="relative w-full h-full rounded-[2rem] overflow-hidden bg-slate-900 shadow-2xl border border-white/10">
-              <video ref={videoRef} playsInline muted className="w-full h-full object-cover" style={{ transform: "scaleX(-1)" }} />
+              <video ref={videoRef} playsInline autoPlay muted className="w-full h-full object-cover" style={{ transform: "scaleX(-1)" }} />
               <canvas ref={canvasRef} className="hidden" />
 
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
