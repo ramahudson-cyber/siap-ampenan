@@ -119,18 +119,43 @@ export default function AttendancePage() {
     } catch { /* warmup not critical */ }
   };
 
-  // 🔄 iOS Safari BFCACHE FIX: reload page when restored from back/forward cache
-  // Tanpa ini, kamera tidak bisa diakses karena permission context hilang
+  // 🔄 iOS Safari BFCACHE + VISIBILITY FIX:
+  // Stream kamera & permission context hilang setelah app di-background.
+  // Reload halaman saat user kembali agar kamera bisa diakses lagi.
+  // - pageshow (bfcache restore): reload dgn time-based guard (30s cooldown)
+  // - visibilitychange: jika stream mati dan kamera sedang terbuka, reload
   useEffect(() => {
+    const canReload = () => {
+      const lastReload = parseInt(sessionStorage.getItem("siap_bfcache_ts") || "0");
+      if (Date.now() - lastReload > 30000) {
+        sessionStorage.setItem("siap_bfcache_ts", String(Date.now()));
+        return true;
+      }
+      return false;
+    };
+
     const onPageShow = (e) => {
-      if (e.persisted && !sessionStorage.getItem("siap_bfcache_reloaded")) {
-        sessionStorage.setItem("siap_bfcache_reloaded", "1");
+      if (e.persisted && canReload()) {
         window.location.reload();
       }
     };
+
+    const onVisibility = () => {
+      if (document.visibilityState === "visible" && cameraOpen && streamRef.current) {
+        const alive = streamRef.current.getVideoTracks().some(t => t.readyState === "live");
+        if (!alive && canReload()) {
+          window.location.reload();
+        }
+      }
+    };
+
     window.addEventListener("pageshow", onPageShow);
-    return () => window.removeEventListener("pageshow", onPageShow);
-  }, []);
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => {
+      window.removeEventListener("pageshow", onPageShow);
+      document.removeEventListener("visibilitychange", onVisibility);
+    };
+  }, [cameraOpen]);
 
   useEffect(() => {
     syncServerTime();
