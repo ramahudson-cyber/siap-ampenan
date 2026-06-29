@@ -124,11 +124,7 @@ export default function AttendancePage() {
     } catch { /* warmup not critical */ }
   };
 
-  // 🔄 iOS Safari BFCACHE + VISIBILITY FIX:
-  // Stream kamera & permission context hilang setelah app di-background.
-  // Reload halaman saat user kembali agar kamera bisa diakses lagi.
-  // - pageshow (bfcache restore): reload dgn time-based guard (30s cooldown)
-  // - visibilitychange: jika stream mati dan kamera sedang terbuka, reload
+  // 🔄 Safari BFCACHE fix: reload saat restore dari bfcache (back/forward)
   useEffect(() => {
     const canReload = () => {
       const lastReload = parseInt(sessionStorage.getItem("siap_bfcache_ts") || "0");
@@ -148,16 +144,9 @@ export default function AttendancePage() {
     const onVisibility = () => {
       if (document.visibilityState !== "visible") return;
       if (!canReload()) return;
-      // Jika kamera terbuka & stream mati → reload
       if (cameraOpen && streamRef.current) {
         const alive = streamRef.current.getVideoTracks().some(t => t.readyState === "live");
-        if (!alive) { window.location.reload(); return; }
-      }
-      // iOS PWA: permission context kadang hilang saat app di-background.
-      // Reload sekali untuk pulihkan.
-      if (isStandalonePwa && !sessionStorage.getItem("siap_vis_reloaded")) {
-        sessionStorage.setItem("siap_vis_reloaded", "1");
-        window.location.reload();
+        if (!alive) { window.location.reload(); }
       }
     };
 
@@ -597,17 +586,20 @@ export default function AttendancePage() {
   };
 
   const openCameraModal = async () => {
-    // 🚨 KRITIS iOS SAFARI PWA:
-    // DILARANG ADA state update (setState) SEBELUM getUserMedia!
-    // React 18 batch flush di await KONSUMSI user gesture.
-    // Gunakan ref (bukan state) untuk pengecekan awal.
     if (cameraStartingRef.current) return;
     cameraStartingRef.current = true;
+
+    // 📱 iOS PWA: getUserMedia TIDAK RELIABLE setelah hard reset (bug WebKit).
+    // Langsung buka kamera native via file input — 100% works, 0 delay.
+    if (isStandalonePwa) {
+      cameraStartingRef.current = false;
+      triggerNativeCamera();
+      return;
+    }
 
     try {
       const stream = await getUserMediaWithFallback();
 
-      // ✅ Stream didapat — baru aman update state
       setPersistentError("");
 
       streamRef.current = stream;
@@ -617,7 +609,6 @@ export default function AttendancePage() {
       setFaceMessage("Menyiapkan kamera...");
       setCameraOpen(true);
 
-      // Tunggu video element muncul di DOM
       let video = videoRef.current;
       if (!video) {
         await new Promise(resolve => setTimeout(resolve, 100));
@@ -627,7 +618,6 @@ export default function AttendancePage() {
 
       video.srcObject = stream;
 
-      // ✅ SAFARI WAJIB: onloadedmetadata sebelum play()
       await new Promise((resolve, reject) => {
         let resolved = false;
         const done = () => { if (!resolved) { resolved = true; resolve(); } };
@@ -654,36 +644,18 @@ export default function AttendancePage() {
       console.error("Camera error:", err);
       cleanupCamera();
 
-      // 📱 iOS PWA bug: setelah hard reset (swipe up & buka lagi),
-      // permission context kamera hilang. Reload page sekali untuk pulihkan.
-      if (isStandalonePwa && !sessionStorage.getItem("siap_cam_reloaded")) {
-        sessionStorage.setItem("siap_cam_reloaded", "1");
-        setPersistentError("Kamera tidak merespon. Memuat ulang halaman...");
-        setTimeout(() => window.location.reload(), 800);
-        cameraStartingRef.current = false;
-        return;
-      }
-      sessionStorage.removeItem("siap_cam_reloaded");
-
       const isTimeout = err.message === "getUserMedia_timeout";
       const errorMsg = isTimeout
         ? "Kamera tidak merespon (timeout)."
         : err.name === "NotAllowedError"
-          ? (isStandalonePwa
-            ? "Izin kamera ditolak (PWA Home Screen).\n\nCoba:\n1. Buka Settings iPhone → cari \"SIAP\" → Camera → Allow\n2. Hapus PWA & add lagi ke Home Screen\n3. Restart iPhone"
-            : isIOS
-              ? "Izin kamera ditolak.\n\nCara perbaiki:\n1. Buka Settings iPhone → Safari → Camera → Allow\n2. Hapus Safari dari App Switcher (geser ke atas)\n3. Buka Safari lagi & coba absen"
-              : "Izin kamera ditolak. Setting → Camera → Allow, lalu reload.")
+          ? "Izin kamera ditolak. Setting → Camera → Allow, lalu reload."
           : err.name === "NotFoundError"
             ? "Kamera tidak ditemukan."
             : err.name === "NotReadableError"
               ? "Kamera sedang dipakai app lain. Tutup app kamera lain."
               : "Gagal akses kamera: " + err.message;
 
-      if (isStandalonePwa && !cameraOpen) {
-        setPersistentError(errorMsg + "\n\nMembuka kamera native...");
-        setTimeout(() => triggerNativeCamera(), 800);
-      } else if (!cameraOpen) {
+      if (!cameraOpen) {
         setPersistentError(errorMsg);
       } else {
         setCameraError(errorMsg);
