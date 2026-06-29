@@ -146,11 +146,18 @@ export default function AttendancePage() {
     };
 
     const onVisibility = () => {
-      if (document.visibilityState === "visible" && cameraOpen && streamRef.current) {
+      if (document.visibilityState !== "visible") return;
+      if (!canReload()) return;
+      // Jika kamera terbuka & stream mati → reload
+      if (cameraOpen && streamRef.current) {
         const alive = streamRef.current.getVideoTracks().some(t => t.readyState === "live");
-        if (!alive && canReload()) {
-          window.location.reload();
-        }
+        if (!alive) { window.location.reload(); return; }
+      }
+      // iOS PWA: permission context kadang hilang saat app di-background.
+      // Reload sekali untuk pulihkan.
+      if (isStandalonePwa && !sessionStorage.getItem("siap_vis_reloaded")) {
+        sessionStorage.setItem("siap_vis_reloaded", "1");
+        window.location.reload();
       }
     };
 
@@ -563,26 +570,29 @@ export default function AttendancePage() {
     }, DETECTION_INTERVAL);
   };
 
+  const getUserMediaWithTimeout = (constraints, timeoutMs = 8000) => {
+    return Promise.race([
+      navigator.mediaDevices.getUserMedia(constraints),
+      new Promise((_, reject) => {
+        setTimeout(() => reject(new Error("getUserMedia_timeout")), timeoutMs);
+      }),
+    ]);
+  };
+
   const getUserMediaWithFallback = async () => {
     // 🚨 KRITIS UNTUK SAFARI PWA:
     // getUserMedia HARUS dipanggil di event loop yg sama dengan klik tombol.
     // DILARANG ada state update (setState) SEBELUM getUserMedia.
+    //
+    // ⚠️ iOS PWA bug: getUserMedia HANG tanpa error setelah hard reset.
+    // Wajib pakai timeout agar tidak nunggu selamanya.
 
-    // 🔥 Warm-up enumerateDevices sebelum getUserMedia
     try { await navigator.mediaDevices.enumerateDevices(); } catch {}
 
-    // Coba {video: true} dulu (PWA iOS sering tolak facingMode)
     try {
-      return await navigator.mediaDevices.getUserMedia({
-        video: true,
-        audio: false,
-      });
+      return await getUserMediaWithTimeout({ video: true, audio: false });
     } catch {
-      // Fallback: coba dengan facingMode
-      return await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "user" },
-        audio: false,
-      });
+      return await getUserMediaWithTimeout({ video: { facingMode: "user" }, audio: false });
     }
   };
 
@@ -642,23 +652,37 @@ export default function AttendancePage() {
       scheduleDetection();
     } catch (err) {
       console.error("Camera error:", err);
-      const errorMsg = err.name === "NotAllowedError"
-        ? (isStandalonePwa
-          ? "Izin kamera ditolak (PWA Home Screen).\n\nCoba:\n1. Buka Settings iPhone → cari \"SIAP\" → Camera → Allow\n2. Hapus PWA & add lagi ke Home Screen\n3. Restart iPhone"
-          : isIOS
-            ? "Izin kamera ditolak.\n\nCara perbaiki:\n1. Buka Settings iPhone → Safari → Camera → Allow\n2. Hapus Safari dari App Switcher (geser ke atas)\n3. Buka Safari lagi & coba absen"
-            : "Izin kamera ditolak. Setting → Camera → Allow, lalu reload.")
-        : err.name === "NotFoundError"
-          ? "Kamera tidak ditemukan."
-          : err.name === "NotReadableError"
-            ? "Kamera sedang dipakai app lain. Tutup app kamera lain."
-            : "Gagal akses kamera: " + err.message;
-
       cleanupCamera();
+
+      // 📱 iOS PWA bug: setelah hard reset (swipe up & buka lagi),
+      // permission context kamera hilang. Reload page sekali untuk pulihkan.
+      if (isStandalonePwa && !sessionStorage.getItem("siap_cam_reloaded")) {
+        sessionStorage.setItem("siap_cam_reloaded", "1");
+        setPersistentError("Kamera tidak merespon. Memuat ulang halaman...");
+        setTimeout(() => window.location.reload(), 800);
+        cameraStartingRef.current = false;
+        return;
+      }
+      sessionStorage.removeItem("siap_cam_reloaded");
+
+      const isTimeout = err.message === "getUserMedia_timeout";
+      const errorMsg = isTimeout
+        ? "Kamera tidak merespon (timeout)."
+        : err.name === "NotAllowedError"
+          ? (isStandalonePwa
+            ? "Izin kamera ditolak (PWA Home Screen).\n\nCoba:\n1. Buka Settings iPhone → cari \"SIAP\" → Camera → Allow\n2. Hapus PWA & add lagi ke Home Screen\n3. Restart iPhone"
+            : isIOS
+              ? "Izin kamera ditolak.\n\nCara perbaiki:\n1. Buka Settings iPhone → Safari → Camera → Allow\n2. Hapus Safari dari App Switcher (geser ke atas)\n3. Buka Safari lagi & coba absen"
+              : "Izin kamera ditolak. Setting → Camera → Allow, lalu reload.")
+          : err.name === "NotFoundError"
+            ? "Kamera tidak ditemukan."
+            : err.name === "NotReadableError"
+              ? "Kamera sedang dipakai app lain. Tutup app kamera lain."
+              : "Gagal akses kamera: " + err.message;
+
       if (isStandalonePwa && !cameraOpen) {
-        // PWA iOS: otomatis buka native camera (tanpa tombol tambahan)
-        setPersistentError("Kamera web tidak tersedia di PWA. Buka kamera native...");
-        setTimeout(() => triggerNativeCamera(), 500);
+        setPersistentError(errorMsg + "\n\nMembuka kamera native...");
+        setTimeout(() => triggerNativeCamera(), 800);
       } else if (!cameraOpen) {
         setPersistentError(errorMsg);
       } else {
@@ -836,6 +860,10 @@ export default function AttendancePage() {
                 className="flex-1 py-2 rounded-xl bg-white/10 text-white text-xs font-medium">Tutup</button>
               <button onClick={openCameraModal}
                 className="flex-1 py-2 rounded-xl bg-gradient-to-r from-violet-600 to-purple-700 text-white text-xs font-medium">Coba Lagi</button>
+              {isStandalonePwa && (
+                <button onClick={() => window.location.reload()}
+                  className="flex-1 py-2 rounded-xl bg-amber-500/20 text-amber-300 text-xs font-medium border border-amber-500/30">Muat Ulang</button>
+              )}
             </div>
           </div>
         )}
