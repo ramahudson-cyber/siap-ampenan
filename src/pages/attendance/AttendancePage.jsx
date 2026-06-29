@@ -195,6 +195,20 @@ export default function AttendancePage() {
       }
     };
     loadModels();
+
+    // ✅ Saat model selesai load & kamera sedang terbuka, mulai deteksi otomatis
+    const modelsReadyCheck = setInterval(() => {
+      if (modelsReadyRef.current && cameraOpen && streamAlive()) {
+        setFaceStatus("scanning");
+        setFaceMessage("Posisikan wajah di dalam lingkaran");
+        scheduleDetection();
+        clearInterval(modelsReadyCheck);
+      }
+      if (modelsFailedRef.current) {
+        clearInterval(modelsReadyCheck);
+      }
+    }, 500);
+    setTimeout(() => clearInterval(modelsReadyCheck), 30000);
     getLocation();
     fetchTodayAttendance();
     fetchTodaySchedule();
@@ -463,8 +477,8 @@ export default function AttendancePage() {
   const runDetection = async () => {
     if (!videoRef.current || !streamAlive()) return false;
 
-    // Mode sederhana: tanpa face-api, user tap tombol untuk capture
-    if (modelsFailed) {
+    // Jika model belum siap, fallback ke mode manual
+    if (modelsFailed || !modelsReadyRef.current) {
       setFaceStatus("scanning");
       setFaceMessage("Tap tombol untuk mengambil foto");
       return true;
@@ -578,10 +592,6 @@ export default function AttendancePage() {
     // React 18 batch flush di await KONSUMSI user gesture.
     // Gunakan ref (bukan state) untuk pengecekan awal.
     if (cameraStartingRef.current) return;
-    if (!modelsReadyRef.current && !modelsFailedRef.current) {
-      setPersistentError("AI model belum siap. Tunggu beberapa detik.");
-      return;
-    }
     cameraStartingRef.current = true;
 
     try {
@@ -798,19 +808,15 @@ export default function AttendancePage() {
           <>
             <button
               onClick={openCameraModal}
-              disabled={locationStatus !== "valid" || isFakeGPS || (!modelsLoaded && !modelsFailed) || savingAttendance || !serverTime}
+              disabled={locationStatus !== "valid" || isFakeGPS || savingAttendance || !serverTime}
               className="w-full py-4 bg-gradient-to-r from-violet-600 to-purple-700 text-white rounded-2xl font-semibold transition disabled:opacity-40 flex items-center justify-center gap-2 shadow-xl shadow-purple-900/30"
             >
               {savingAttendance ? (
                 <><Loader2 size={20} className="animate-spin" /> Menyimpan...</>
               ) : !serverTime ? (
                 <><Loader2 size={20} className="animate-spin" /> Sinkron server...</>
-              ) : modelsLoaded ? (
-                <><Camera size={20} /> Verifikasi Wajah</>
-              ) : modelsFailed ? (
-                <><Camera size={20} /> Ambil Foto</>
               ) : (
-                <><Loader2 size={20} className="animate-spin" /> Memuat AI...</>
+                <><Camera size={20} /> Absen Sekarang</>
               )}
             </button>
           </>
@@ -915,7 +921,7 @@ export default function AttendancePage() {
             }`}>
               {faceMessage || "Menyiapkan kamera..."}
             </div>
-            {modelsFailed && faceStatus === "scanning" && (
+            {faceStatus !== "loading" && faceStatus !== "success" && (
               <button onClick={capturePhoto}
                 className="w-full py-4 bg-gradient-to-r from-violet-600 to-purple-700 text-white rounded-2xl font-semibold transition active:scale-95 flex items-center justify-center gap-2 shadow-xl shadow-purple-900/30">
                 <Camera size={20} /> Ambil Foto

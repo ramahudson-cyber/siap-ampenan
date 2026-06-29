@@ -46,10 +46,10 @@ export default defineConfig({
         ]
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,svg}'],
+        globPatterns: ['**/*.{js,css,html,svg,png,json}', 'models/*.json'],
         runtimeCaching: [
           {
-            urlPattern: /\/models\//,
+            urlPattern: /\/models\/.*shard1/,
             handler: 'CacheFirst',
             options: {
               cacheName: 'face-models',
