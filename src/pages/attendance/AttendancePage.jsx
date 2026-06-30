@@ -175,7 +175,16 @@ export default function AttendancePage() {
         } catch { preloadModule = null; }
 
         if (preloadModule) {
-          await preloadModule.preloadFaceModels();
+          try {
+            await preloadModule.preloadFaceModels();
+          } catch {
+            // Jika preload gagal, coba load langsung dari /models
+            await Promise.all([
+              faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
+              faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
+              faceapi.nets.faceExpressionNet.loadFromUri(MODEL_URL)
+            ]);
+          }
         } else {
           await Promise.all([
             faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
@@ -505,7 +514,7 @@ export default function AttendancePage() {
     try {
       const detection = await faceapi.detectSingleFace(
         videoRef.current,
-        new faceapi.TinyFaceDetectorOptions({ inputSize: 224, scoreThreshold: 0.3 })
+        new faceapi.TinyFaceDetectorOptions({ inputSize: 320, scoreThreshold: 0.1 })
       ).withFaceLandmarks().withFaceExpressions();
 
       if (!detection) {
@@ -515,11 +524,11 @@ export default function AttendancePage() {
       }
 
       const box = detection.detection.box;
-      const vw = videoRef.current.videoWidth;
-      const vh = videoRef.current.videoHeight;
-      const margin = 20;
+      const vw = videoRef.current.videoWidth || 640;
+      const vh = videoRef.current.videoHeight || 480;
+      const margin = 10;
       const isCropped = box.x < margin || box.y < margin || box.x + box.width > vw - margin || box.y + box.height > vh - margin;
-      const isTooSmall = box.width < vw * 0.25 || box.height < vh * 0.25;
+      const isTooSmall = box.width < vw * 0.15 || box.height < vh * 0.15;
 
       if (isCropped || isTooSmall) {
         setFaceStatus("scanning");
@@ -535,7 +544,8 @@ export default function AttendancePage() {
       setFaceStatus("smiling");
       setFaceMessage("Senyum ke kamera!");
       return true;
-    } catch {
+    } catch (err) {
+      console.error("detect error:", err);
       return streamAlive();
     }
   };

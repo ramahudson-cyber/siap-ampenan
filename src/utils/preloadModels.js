@@ -16,6 +16,7 @@ export function preloadFaceModels() {
     }).catch(err => {
       console.error("❌ Preload failed:", err);
       modelsPromise = null;
+      throw err; // lempar error agar caller tahu
     });
   }
   return modelsPromise;
