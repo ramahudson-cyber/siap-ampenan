@@ -196,6 +196,7 @@ html:not(.dark) .border-violet-500\/50 { border-color: #a5b4fc; }
 }
 html:not(.dark) .border-gradient {
   background: linear-gradient(to right, var(--accent), #8b5cf6) border-box;
+  color: #ffffff !important;
 }
 
 /* Gradient buttons keep white text */
