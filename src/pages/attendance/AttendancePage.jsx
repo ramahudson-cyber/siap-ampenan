@@ -969,7 +969,7 @@ export default function AttendancePage() {
                 className="flex-1 py-2 rounded-xl border-gradient bg-transparent text-white text-xs font-medium">Coba Lagi</button>
               {isStandalonePwa && (
                 <button onClick={() => window.location.reload()}
-                  className="flex-1 py-2 rounded-xl border-gradient bg-transparent text-amber-300 text-xs font-medium">Muat Ulang</button>
+                  className="flex-1 py-2 rounded-xl border-gradient bg-transparent text-white text-xs font-medium">Muat Ulang</button>
               )}
             </div>
           </div>

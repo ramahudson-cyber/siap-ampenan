@@ -148,7 +148,7 @@ export default function SelfieCapture({ userId, onSuccess }) {
       {preview && !cameraOpen && (
         <div className="relative">
           <img src={preview} alt="Preview" className="w-72 h-56 object-cover rounded-xl border-4 border-green-400" />
-          <button onClick={reset} className="absolute top-2 right-2 border-gradient bg-transparent p-1">
+          <button onClick={reset} className="absolute top-2 right-2 border-gradient bg-transparent text-white p-1">
             <X size={14} />
           </button>
         </div>

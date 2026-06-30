@@ -99,7 +99,7 @@ export default function TabShift() {
             className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all active:scale-95
               ${dirty
                 ? "border-gradient bg-transparent text-white hover:shadow-lg hover:shadow-violet-900/30"
-                : "border-gradient bg-transparent text-slate-500 cursor-not-allowed"}`}>
+                : "border-gradient bg-transparent text-white cursor-not-allowed"}`}>
             <Save size={15} /> {saving ? "Menyimpan..." : dirty ? "Simpan Perubahan" : "Tersimpan"}
           </button>
         </div>

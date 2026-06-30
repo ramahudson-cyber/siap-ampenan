@@ -432,7 +432,7 @@ export default function AttendanceHistoryPage() {
               <button
                 onClick={() => setPage(p => Math.max(1, p - 1))}
                 disabled={page === 1}
-                className="p-2 rounded-lg border border-white/10 border-gradient bg-transparent text-violet-200/80 hover:text-white hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                className="p-2 rounded-lg border border-white/10 border-gradient bg-transparent text-white hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
                 aria-label="Halaman sebelumnya"
               >
                 <ChevronLeft size={15} />
@@ -440,7 +440,7 @@ export default function AttendanceHistoryPage() {
               <button
                 onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                 disabled={page === totalPages}
-                className="p-2 rounded-lg border border-white/10 border-gradient bg-transparent text-violet-200/80 hover:text-white hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                className="p-2 rounded-lg border border-white/10 border-gradient bg-transparent text-white hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
                 aria-label="Halaman berikutnya"
               >
                 <ChevronRight size={15} />
