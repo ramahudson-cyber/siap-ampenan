@@ -446,12 +446,13 @@ export default function AttendancePage() {
     return streamRef.current && streamRef.current.getVideoTracks().some(t => t.readyState === "live");
   };
 
-  // ⏱ Tunggu video element benar-benar ter-render di DOM
-  const waitForVideoElement = (ref, timeout = 3000) => {
+  // ⏱ Tunggu video element ter-render + punya dimensi (layout selesai)
+  const waitForVideoElement = (ref, timeout = 5000) => {
     return new Promise((resolve, reject) => {
       const start = Date.now();
       const check = () => {
-        if (ref.current && document.contains(ref.current)) return resolve(ref.current);
+        const el = ref.current;
+        if (el && document.contains(el) && el.offsetWidth > 0 && el.offsetHeight > 0) return resolve(el);
         if (Date.now() - start > timeout) return reject(new Error("Timeout video element"));
         requestAnimationFrame(check);
       };
@@ -636,24 +637,14 @@ export default function AttendancePage() {
 
     video.srcObject = stream;
 
-    await new Promise((resolve, reject) => {
-      let resolved = false;
-      const done = () => { if (!resolved) { resolved = true; resolve(); } };
-      const fail = (err) => { if (!resolved) { resolved = true; reject(err); } };
+    // 🚨 iOS PWA: video.play() promise sering tidak pernah settle
+    // setelah hard reset (known WebKit bug). Gunakan fire-and-forget
+    // + delay, jangan await play().
+    video.muted = true;
+    video.play().catch(() => {});
 
-      if (video.readyState >= 2) {
-        video.play().then(done).catch(fail);
-      } else {
-        video.onloadedmetadata = () => {
-          video.play().then(done).catch(() => {
-            video.muted = true;
-            video.play().then(done).catch(fail);
-          });
-        };
-        video.onerror = fail;
-        setTimeout(() => fail(new Error("Timeout kamera")), 10000);
-      }
-    });
+    // Tunggu sebentar agar video sempat render frame pertama
+    await new Promise(resolve => setTimeout(resolve, 1000));
 
     setFaceStatus("scanning");
     setFaceMessage("Posisikan wajah di dalam lingkaran");
@@ -939,7 +930,7 @@ export default function AttendancePage() {
           <div className="relative w-full max-w-md aspect-square">
             <div className="absolute -inset-4 bg-gradient-to-br from-violet-600/20 to-purple-800/20 rounded-[2rem] blur-2xl"></div>
             <div className="relative w-full h-full rounded-[2rem] overflow-hidden bg-slate-900 shadow-2xl border border-white/10">
-              <video ref={videoRef} playsInline autoPlay muted className="w-full h-full object-cover" style={{ transform: "scaleX(-1)" }} />
+              <video ref={videoRef} playsInline webkit-playsinline autoPlay muted className="w-full h-full object-cover" style={{ transform: "scaleX(-1) translate3d(0,0,0)" }} />
               <canvas ref={canvasRef} className="hidden" />
 
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
