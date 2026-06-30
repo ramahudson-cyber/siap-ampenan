@@ -212,13 +212,6 @@ export default function AttendancePage() {
     getDeviceVisitorId();
     // 🔥 Warm-up media devices — iOS PWA butuh ini agar getUserMedia() cepat
     try { navigator.mediaDevices.enumerateDevices(); } catch {}
-    // 🔥 Pre-warm getUserMedia sekali di awal agar izin kamera tercache di iOS PWA
-    (async () => {
-      try {
-        const warmStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
-        warmStream.getTracks().forEach(t => t.stop());
-      } catch { /* pre-warm tidak critical */ }
-    })();
     return () => cleanupCamera();
   }, []);
 
@@ -636,15 +629,18 @@ export default function AttendancePage() {
     }
 
     video.srcObject = stream;
-
-    // 🚨 iOS PWA: video.play() promise sering tidak pernah settle
-    // setelah hard reset (known WebKit bug). Gunakan fire-and-forget
-    // + delay, jangan await play().
     video.muted = true;
-    video.play().catch(() => {});
 
-    // Tunggu sebentar agar video sempat render frame pertama
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    // iOS PWA: play + tunggu canplay event atau timeout 3 detik
+    video.play().catch(() => {});
+    await new Promise((resolve) => {
+      if (video.readyState >= 2) return resolve();
+      let done = false;
+      const cb = () => { if (!done) { done = true; resolve(); } };
+      video.addEventListener("canplay", cb, { once: true });
+      video.addEventListener("loadedmetadata", cb, { once: true });
+      setTimeout(() => { if (!done) { done = true; resolve(); } }, 3000);
+    });
 
     setFaceStatus("scanning");
     setFaceMessage("Posisikan wajah di dalam lingkaran");
@@ -668,6 +664,8 @@ export default function AttendancePage() {
       setFaceMessage("Menyiapkan kamera...");
       try {
         await waitForVideoElement(videoRef);
+        // Primer play: panggil play() di video kosong untuk "prime" autoplay izin
+        videoRef.current?.play().catch(() => {});
         const stream = await getUserMediaWithTimeout({ video: true, audio: false }, 5000);
         await startStreamCapture(stream);
         cameraStartingRef.current = false;
@@ -675,6 +673,8 @@ export default function AttendancePage() {
       } catch {
         // Retry 1x — iOS PWA kadang butuh 2x percobaan setelah hard reset
         try {
+          await waitForVideoElement(videoRef);
+          videoRef.current?.play().catch(() => {});
           const stream = await getUserMediaWithTimeout({ video: true, audio: false }, 5000);
           await startStreamCapture(stream);
           cameraStartingRef.current = false;
