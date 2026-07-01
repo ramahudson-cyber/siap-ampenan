@@ -53,7 +53,10 @@ export default function LoginPage() {
       .select("email")
       .eq("username", input.trim())
       .maybeSingle();
-    if (error || !data?.email) return `${input.trim()}@puskesmas.local`;
+    if (error || !data?.email) {
+      if (error) console.error("resolveEmail error:", error);
+      throw new Error("Akun tidak ditemukan. Hubungi admin.");
+    }
     return data.email;
   };
 
