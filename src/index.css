@@ -2,6 +2,10 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+@theme {
+  --font-sans: 'Inter', sans-serif;
+}
+
 /* --- BASE --- */
 html, body, #root {
   margin: 0;
