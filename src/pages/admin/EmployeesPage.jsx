@@ -7,6 +7,15 @@ import {
 } from 'lucide-react';
 import ConfirmSheet from '../../components/ConfirmSheet';
 
+const POSITIONS = [
+  "Cleaning Service", "Driver", "Satpam", "Manajemen",
+  "Perawat", "Perawat Gigi", "Bidan",
+  "Dokter Umum", "Dokter Gigi",
+  "Rekam Medis", "Bendahara", "IT", "Apoteker",
+  "Nutrisionis", "Sanitarian", "Promotor Kesehatan",
+  "Kepala Puskesmas", "Kasubag TU",
+];
+
 const cardBase =
   'bg-[#c190ff]/15 border border-white/10 rounded-2xl transition-all';
 
@@ -317,9 +326,15 @@ const EmployeesPage = () => {
                 <input
                   type="text" name="position" value={formData.position}
                   onChange={handleInputChange}
-                  placeholder="Contoh: Dokter Umum"
+                  placeholder="Ketik atau pilih jabatan"
+                  list="position-list"
                   className={inputBase}
                 />
+                <datalist id="position-list">
+                  {POSITIONS.map(p => (
+                    <option key={p} value={p} />
+                  ))}
+                </datalist>
               </div>
 
               <div className="flex gap-3 pt-2 sticky bottom-0 bg-[#1a0a35]/95 backdrop-blur-md -mx-5 md:-mx-6 px-5 md:px-6 pb-2 -mb-2">

@@ -102,6 +102,11 @@ export default function LoginPage() {
       if (deviceCheck.canLogin && !deviceCheck.requiresOtp) {
         setLoadingText("Memuat dashboard...");
         await refreshUser();
+        // Force ganti password untuk non-super_admin yang pertama login
+        if (profile.role !== "super_admin" && profile.password_changed === false) {
+          navigate("/ubah-password", { replace: true });
+          return;
+        }
         redirectByRole(profile.role);
         return;
       }
@@ -222,8 +227,12 @@ export default function LoginPage() {
       const status = await checkDeviceRequestStatus(userId, deviceInfo.visitorId);
       if (status.status === "approved") {
         await refreshUser();
-        const { data: profile } = await supabase.from("profiles").select("role").eq("id", userId).single();
-        if (profile?.role) {
+        const { data: profile } = await supabase.from("profiles").select("role, password_changed").eq("id", userId).single();
+        if (profile) {
+          if (profile.role !== "super_admin" && profile.password_changed === false) {
+            navigate("/ubah-password", { replace: true });
+            return;
+          }
           redirectByRole(profile.role);
           return;
         }

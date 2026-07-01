@@ -1,8 +1,9 @@
-import { Navigate } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 function ProtectedRoute({ children, allowedRoles }) {
   const { user, loading, isAuthenticated } = useAuth();
+  const location = useLocation();
 
   // Show loading while checking auth
   if (loading) {
@@ -23,22 +24,22 @@ function ProtectedRoute({ children, allowedRoles }) {
 
   // Check role if allowedRoles is specified
   if (allowedRoles && user) {
-    // Ambil role dari user object (sudah digabung di AuthContext)
     const userRole = user?.role;
     
-    console.log("ProtectedRoute Check:");
-    console.log("- User:", user?.email);
-    console.log("- User role:", userRole);
-    console.log("- Allowed roles:", allowedRoles);
-    console.log("- Role in allowed?", userRole && allowedRoles.includes(userRole));
-    
-    // Jika role tidak ada atau tidak ada di allowedRoles
     if (!userRole || !allowedRoles.includes(userRole)) {
-      console.log("❌ Access denied - Role mismatch");
       return <Navigate to="/unauthorized" replace />;
     }
-    
-    console.log("✅ Access granted");
+  }
+
+  // Force password change untuk non-super_admin yang belum ganti password
+  // Kecuali lagi di halaman /ubah-password itu sendiri
+  if (
+    user &&
+    user.role !== "super_admin" &&
+    user.password_changed === false &&
+    location.pathname !== "/ubah-password"
+  ) {
+    return <Navigate to="/ubah-password" replace />;
   }
 
   return children;

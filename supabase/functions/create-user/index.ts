@@ -33,6 +33,7 @@ export default async function handler(req: Request) {
       role,
       employee_status,
       position: position || null,
+      password_changed: false,
       created_at: new Date().toISOString()
     }
 
