@@ -322,12 +322,12 @@ export default function LoginPage() {
 
       <div className="relative z-10 w-full max-w-[380px]">
         {/* Hero */}
-        <div className="mb-8">
+        <div className="mb-8 text-center">
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white leading-tight">
             Selamat Datang<br />di SIAP
           </h1>
-          <div className="w-10 h-0.5 bg-gradient-to-r from-violet-400 to-purple-600 rounded-full mt-4"></div>
-          <p className="text-sm sm:text-base text-slate-300/70 leading-relaxed mt-4 max-w-[320px]">
+          <div className="w-10 h-0.5 bg-gradient-to-r from-violet-400 to-purple-600 rounded-full mt-4 mx-auto"></div>
+          <p className="text-sm sm:text-base text-slate-300/70 leading-relaxed mt-4 max-w-[320px] mx-auto">
             Sistem Informasi Administrasi dan Presensi Puskesmas Ampenan
           </p>
         </div>
