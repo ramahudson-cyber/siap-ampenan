@@ -321,21 +321,15 @@ export default function LoginPage() {
       </div>
 
       <div className="relative z-10 w-full max-w-[380px]">
-        {/* Logo */}
-        <div className="text-center mb-7">
-          <div className="inline-flex items-center justify-center w-14 h-14 mb-3 relative">
-            <div className="absolute inset-0 bg-gradient-to-br from-violet-500 to-purple-700 rounded-2xl rotate-6 opacity-40"></div>
-            <div className="absolute inset-0 bg-gradient-to-tr from-indigo-500 to-violet-600 rounded-2xl -rotate-3 opacity-40"></div>
-            <div className="relative w-12 h-12 bg-gradient-to-br from-violet-500 to-purple-700 rounded-2xl flex items-center justify-center shadow-2xl shadow-purple-900/50">
-              <svg viewBox="0 0 24 24" fill="none" className="w-6 h-6 text-white">
-                <path d="M12 2L2 7v10l10 5 10-5V7L12 2z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/>
-                <path d="M12 22V12M2 7l10 5 10-5" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/>
-                <circle cx="12" cy="12" r="2" fill="currentColor"/>
-              </svg>
-            </div>
-          </div>
-          <h1 className="text-xl font-bold text-white">Selamat Datang di SIAP</h1>
-          <p className="text-slate-300 text-[11px] mt-1.5">Sistem Informasi Administrasi dan Presensi</p>
+        {/* Hero */}
+        <div className="mb-8">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white leading-tight">
+            Selamat Datang<br />di SIAP
+          </h1>
+          <div className="w-10 h-0.5 bg-gradient-to-r from-violet-400 to-purple-600 rounded-full mt-4"></div>
+          <p className="text-sm sm:text-base text-slate-300/70 leading-relaxed mt-4 max-w-[320px]">
+            Sistem Informasi Administrasi dan Presensi Puskesmas Ampenan
+          </p>
         </div>
 
         {/* Card - Black Glassmorphism */}
