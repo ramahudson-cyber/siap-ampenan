@@ -144,8 +144,7 @@ export default function AttendanceHistoryPage() {
       // Filter search di client (nama pegawai)
       const filtered = search.trim()
         ? (data || []).filter(r =>
-            r.profiles?.full_name?.toLowerCase().includes(search.toLowerCase()) ||
-
+            r.profiles?.full_name?.toLowerCase().includes(search.toLowerCase())
           )
         : (data || []);
 
@@ -195,7 +194,6 @@ export default function AttendanceHistoryPage() {
     const rows = data.map(r => [
       r.date,
       r.profiles?.full_name ?? "-",
-
       fmtTime(r.clock_in_time),
       fmtTime(r.clock_out_time),
       r.attendance_status ?? "-",

@@ -136,8 +136,7 @@ const EmployeesPage = () => {
 
   const filtered = employees.filter(emp =>
     (emp.full_name || '').toLowerCase().includes(search.toLowerCase()) ||
-    (emp.username || '').toLowerCase().includes(search.toLowerCase()) ||
-
+    (emp.username || '').toLowerCase().includes(search.toLowerCase())
   );
 
   const roleBadge = (role) => {
