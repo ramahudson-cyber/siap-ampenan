@@ -189,13 +189,17 @@ html:not(.dark) .border-violet-500\/50 { border-color: #a5b4fc; }
 /* Purple gradient border utility */
 .border-gradient {
   border: 2px solid transparent;
-  background: linear-gradient(to right, #7c3aed, #6366f1) border-box;
-  -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
+  background-image: linear-gradient(to right, transparent, transparent),
+                    linear-gradient(to right, #7c3aed, #6366f1);
+  background-clip: padding-box, border-box;
+  background-origin: padding-box, border-box;
+  color: #ffffff !important;
 }
 html:not(.dark) .border-gradient {
-  background: linear-gradient(to right, var(--accent), #8b5cf6) border-box;
+  background-image: linear-gradient(to right, transparent, transparent),
+                    linear-gradient(to right, var(--accent), #8b5cf6);
+  background-clip: padding-box, border-box;
+  background-origin: padding-box, border-box;
   color: #ffffff !important;
 }
 
