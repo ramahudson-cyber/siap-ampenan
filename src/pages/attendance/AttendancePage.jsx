@@ -442,6 +442,12 @@ export default function AttendancePage() {
     return streamRef.current && streamRef.current.getVideoTracks().some(t => t.readyState === "live");
   };
 
+  const onStreamEnded = () => {
+    if (!streamRef.current) return;
+    setPersistentError("Stream kamera terputus. Coba lagi.");
+    cleanupCamera();
+  };
+
   // ⏱ Tunggu video element ter-render + punya dimensi (layout selesai)
   const waitForVideoElement = (ref, timeout = 5000) => {
     return new Promise((resolve, reject) => {
@@ -592,13 +598,17 @@ export default function AttendancePage() {
     setFaceMessage("Menyiapkan kamera...");
     setCameraOpen(true);
 
+    // Pantau jika track camera mati
+    stream.getVideoTracks().forEach(t => {
+      t.addEventListener("ended", onStreamEnded);
+    });
+
     let video = videoRef.current;
     if (!video) {
       video = await waitForVideoElement(videoRef);
     }
 
     video.srcObject = stream;
-    video.muted = true;
 
     // iOS PWA: play + tunggu canplay event atau timeout 3 detik
     video.play().catch(() => {});
@@ -633,14 +643,6 @@ export default function AttendancePage() {
   const openCameraModal = async () => {
     if (cameraStartingRef.current) return;
     cameraStartingRef.current = true;
-
-    // 📱 Android: pre-flight permintaan izin kamera
-    if (/android/i.test(navigator.userAgent) && navigator.mediaDevices) {
-      try {
-        const permStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
-        permStream.getTracks().forEach(t => t.stop());
-      } catch { /* abaikan, error akan muncul di langkah utama */ }
-    }
 
     // 📱 iOS PWA: hybrid approach
     // 1) Render video element DULU (set cameraOpen = true)
@@ -720,7 +722,7 @@ export default function AttendancePage() {
     }
     if (streamRef.current) {
       streamRef.current.getTracks().forEach(t => {
-        t.removeEventListener("ended", cleanupCamera);
+        t.removeEventListener("ended", onStreamEnded);
         t.stop();
       });
       streamRef.current = null;
@@ -740,7 +742,7 @@ export default function AttendancePage() {
 
   return (
     <>
-      <div className="space-y-3 animate-fade-in">
+      <div className={`space-y-3 animate-fade-in ${cameraOpen ? 'invisible' : ''}`}>
         <div className="relative bg-white dark:bg-[#1a0d2e] rounded-2xl p-5 text-slate-900 dark:text-white shadow-lg border border-slate-200 dark:border-white/10 overflow-hidden">
           <div className="absolute top-0 right-0 w-32 h-32 bg-violet-500/5 dark:bg-white/10 rounded-full -mr-16 -mt-16"></div>
           <div className="relative">
@@ -914,11 +916,11 @@ export default function AttendancePage() {
         )}
       </div>
 
-      <div className={`fixed inset-0 z-[100] flex-col bg-black ${cameraOpen ? 'flex animate-fade-in' : 'hidden'}`}>
+      <div className={`fixed inset-0 z-[9999] flex-col bg-black ${cameraOpen ? 'flex animate-fade-in' : 'hidden'}`} style={{ isolation: 'isolate', position: 'fixed' }}>
           <div className="absolute top-0 left-0 right-0 h-40 bg-gradient-to-b from-violet-900/40 via-violet-900/10 to-transparent pointer-events-none"></div>
           <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-purple-900/30 to-transparent pointer-events-none"></div>
 
-          <div className="flex-1 overflow-y-auto px-4 pt-[env(safe-area-inset-top,16px)] pb-[env(safe-area-inset-bottom,16px)]">
+          <div className="flex-1 overflow-hidden px-4 pt-[env(safe-area-inset-top,16px)] pb-[env(safe-area-inset-bottom,16px)]">
             <div className="max-w-md mx-auto flex flex-col items-center min-h-full">
               <div className="relative w-full flex items-center justify-between mb-3 sm:mb-5 mt-2">
                 <div className="flex items-center gap-2 sm:gap-3">
